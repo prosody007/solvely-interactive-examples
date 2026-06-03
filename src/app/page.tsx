@@ -140,7 +140,17 @@ function CommonStatusBar({ color }: { color: "#FFFFFF" | "#111111" }) {
 function OnboardingScreen() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#F6F8FA] select-none">
-      <div className="absolute left-0 top-0 h-[552px] w-full bg-[#F6F8FA]" />
+      <div className="absolute left-0 top-0 h-[552px] w-full overflow-hidden bg-[#F6F8FA]">
+        <video
+          className="h-full w-full object-cover"
+          src="/videos/onboarding-hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+      </div>
 
       <div className="absolute bottom-0 left-0 flex w-full flex-col items-start bg-white pt-[24px]">
         <div className="flex w-full flex-col items-center gap-[16px] px-[24px] pb-[16px] text-center">
