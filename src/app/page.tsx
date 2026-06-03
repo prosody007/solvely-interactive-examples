@@ -598,7 +598,7 @@ function PracticeGameScreen() {
                     draggable={false}
                     className="h-full w-full object-cover"
                   />
-                  <div className="absolute right-[8px] top-[8px] flex items-center justify-center rounded-full bg-[rgba(0,0,0,0.6)] px-[8px] py-[5px]">
+                  <div className="absolute right-[8px] top-[8px] flex items-center justify-center rounded-full bg-[rgba(0,0,0,0.6)] px-[10px] py-[6px]">
                     <span className="whitespace-nowrap text-[13px] font-medium leading-[13px] text-white">
                       Medicine
                     </span>
