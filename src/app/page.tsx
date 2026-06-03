@@ -589,14 +589,21 @@ function PracticeGameScreen() {
                 🎮 Practice with game
               </h2>
               <div className="rounded-[20px] bg-white p-[16px] shadow-[0_24px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#E6E8EA]">
-                <Image
-                  src="/figma/practice-game/skull-anatomy-cover.png"
-                  alt=""
-                  width={321}
-                  height={140}
-                  draggable={false}
-                  className="h-[140px] w-full rounded-[12px] object-cover"
-                />
+                <div className="relative h-[140px] w-full overflow-hidden rounded-[12px]">
+                  <Image
+                    src="/figma/practice-game/skull-anatomy-cover.png"
+                    alt=""
+                    width={321}
+                    height={140}
+                    draggable={false}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute right-[8px] top-[8px] flex items-center justify-center rounded-full bg-[rgba(0,0,0,0.6)] px-[8px] py-[5px]">
+                    <span className="whitespace-nowrap text-[13px] font-medium leading-[13px] text-white">
+                      Medicine
+                    </span>
+                  </div>
+                </div>
                 <div className="mt-[16px] px-[4px]">
                   <div className="flex flex-col gap-[8px]">
                     <div>
