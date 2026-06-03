@@ -585,13 +585,18 @@ function PracticeGameScreen() {
             </div>
 
             <div className="px-[20px]">
-              <h2 className="m-0 mb-[12px] text-[16px] font-semibold leading-[1.4]">
-                🎮 Practice with game
-              </h2>
+              <div className="mb-[12px] flex w-full flex-col items-start gap-[4px] whitespace-nowrap">
+                <h2 className="m-0 text-[16px] font-semibold leading-[1.2] text-[#111111]">
+                  Lock It In
+                </h2>
+                <p className="m-0 text-[12px] font-normal leading-[1.5] text-[#989B9E]">
+                  Train visual memory with a practice game
+                </p>
+              </div>
               <div className="rounded-[20px] bg-white p-[16px] shadow-[0_24px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#E6E8EA]">
                 <div className="relative h-[140px] w-full overflow-hidden rounded-[12px]">
                   <Image
-                    src="/figma/practice-game/skull-anatomy-cover.png"
+                    src="/figma/practice-game/skull-anatomy-cover-v2.png"
                     alt=""
                     width={321}
                     height={140}
@@ -608,7 +613,7 @@ function PracticeGameScreen() {
                   <div className="flex flex-col gap-[8px]">
                     <div>
                       <h3 className="m-0 text-[16px] font-semibold leading-[1.4]">
-                        Skull Anatomy Challenge Mandible
+                        Skull Anatomy Challenge
                       </h3>
                   <p className="m-0 flex h-[22px] items-center overflow-hidden text-ellipsis whitespace-nowrap text-[13px] leading-[1.4] text-[#595C60]">
                     Tap the correct spot on the skull diagram
@@ -721,7 +726,7 @@ function PracticeMetric({ icon, value }: { icon: string; value: string }) {
           className="absolute left-1/2 top-1/2 h-[16.667px] w-[16.667px] -translate-x-1/2 -translate-y-1/2"
         />
       </div>
-      <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] font-medium leading-[12px] text-[#989B9E]">
+      <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-medium leading-[13px] text-[#989B9E]">
         {value}
       </div>
     </div>
