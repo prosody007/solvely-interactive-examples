@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { HomePreview } from "@/components/preview/home-preview";
+import { StudyPreview } from "@/components/preview/study-preview";
 import { TutorPreview } from "@/components/preview/tutor-preview";
 import {
   FlashCardFlipSwipeAwayPreview,
@@ -13,6 +14,7 @@ import {
 
 type ScreenKey =
   | "home"
+  | "study"
   | "onboarding"
   | "tutor"
   | "flash-card-stack"
@@ -29,6 +31,11 @@ const SCREENS: {
     key: "home",
     title: "Home",
     href: "/home",
+  },
+  {
+    key: "study",
+    title: "Study",
+    href: "/study",
   },
   {
     key: "onboarding",
@@ -70,6 +77,7 @@ const NAV_GROUPS: {
     label: "Solvely",
     keys: [
       "home",
+      "study",
       "tutor",
       "flash-card-stack",
       "flash-card-flip-swipe-away",
@@ -595,13 +603,37 @@ function PracticeGameScreen() {
             </div>
 
             <div className="px-[20px]">
-              <div className="mb-[12px] flex w-full flex-col items-start gap-[4px] whitespace-nowrap">
-                <h2 className="m-0 text-[16px] font-semibold leading-[1.2] text-[#111111]">
-                  Lock It In
-                </h2>
-                <p className="m-0 text-[12px] font-normal leading-[1.5] text-[#989B9E]">
-                  Train visual memory with a practice game
-                </p>
+              <div className="mb-[12px] flex w-full items-center justify-between">
+                <div className="flex flex-col items-start gap-[4px] whitespace-nowrap">
+                  <h2 className="m-0 text-[16px] font-semibold leading-[1.2] text-[#111111]">
+                    Lock It In
+                  </h2>
+                  <p className="m-0 text-[12px] font-normal leading-[1.5] text-[#989B9E]">
+                    Flip the cards to test your knowledge
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-start gap-[12px]">
+                  <div className="flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-[12px] bg-[#EDEEF3]">
+                    <Image
+                      src="/figma/practice-game/icons/thumb-up.svg"
+                      alt=""
+                      width={20}
+                      height={20}
+                      draggable={false}
+                      className="h-[20px] w-[20px]"
+                    />
+                  </div>
+                  <div className="flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-[12px] bg-[#EDEEF3]">
+                    <Image
+                      src="/figma/practice-game/icons/thumb-down.svg"
+                      alt=""
+                      width={20}
+                      height={20}
+                      draggable={false}
+                      className="h-[20px] w-[20px]"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="rounded-[20px] bg-white p-[16px] shadow-[0_24px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#E6E8EA]">
                 <div className="relative h-[140px] w-full overflow-hidden rounded-[12px]">
@@ -1125,6 +1157,7 @@ function SimulatorPreview({ activeKey }: { activeKey: ScreenKey }) {
 
 function ScreenPreview({ activeKey }: { activeKey: ScreenKey }) {
   if (activeKey === "home") return <HomePreview />;
+  if (activeKey === "study") return <StudyPreview />;
   if (activeKey === "tutor") return <TutorPreview />;
   if (activeKey === "flash-card-stack") return <FlashCardTransitionPreview />;
   if (activeKey === "flash-card-flip-swipe-away") {
