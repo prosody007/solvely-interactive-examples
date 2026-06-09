@@ -5,7 +5,11 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { HomePreview } from "@/components/preview/home-preview";
-import { StudyPreview } from "@/components/preview/study-preview";
+import { HomeV2Preview } from "@/components/preview/home-v2-preview";
+import {
+  StudyPreview,
+  type StudyExperimentVariant,
+} from "@/components/preview/study-preview";
 import { TutorPreview } from "@/components/preview/tutor-preview";
 import {
   FlashCardFlipSwipeAwayPreview,
@@ -14,6 +18,7 @@ import {
 
 type ScreenKey =
   | "home"
+  | "solve"
   | "study"
   | "onboarding"
   | "tutor"
@@ -21,6 +26,8 @@ type ScreenKey =
   | "flash-card-flip-swipe-away"
   | "paywall"
   | "practice-game";
+
+type StudyExperiment = StudyExperimentVariant;
 
 const SCREENS: {
   key: ScreenKey;
@@ -31,6 +38,11 @@ const SCREENS: {
     key: "home",
     title: "Home",
     href: "/home",
+  },
+  {
+    key: "solve",
+    title: "Solve",
+    href: "/solve",
   },
   {
     key: "study",
@@ -77,6 +89,7 @@ const NAV_GROUPS: {
     label: "Solvely",
     keys: [
       "home",
+      "solve",
       "study",
       "tutor",
       "flash-card-stack",
@@ -121,25 +134,28 @@ const PHONE_PRESET = {
 } as const;
 
 const PHONE_PREVIEW_GAP = 6;
+const STUDY_EXPERIMENT_LIST_W = 260;
+const STUDY_EXPERIMENT_LIST_RIGHT = 40;
+const STUDY_EXPERIMENT_ACTIVE_COLOR = "rgba(0,0,0,0.88)";
+const STUDY_EXPERIMENT_INACTIVE_COLOR = "rgba(0,0,0,0.45)";
+const STUDY_EXPERIMENT_INDICATOR_GAP = 8;
+const STUDY_EXPERIMENT_INDICATOR_W = 12;
+const STUDY_EXPERIMENT_INDICATOR_H = 2;
+const STUDY_EXPERIMENT_INDICATOR_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 let cachedPhoneScale: number | undefined;
 
-function CommonStatusBar({ color }: { color: "#FFFFFF" | "#111111" }) {
-  const src =
-    color === "#FFFFFF"
-      ? "/figma/common/status-light.png"
-      : "/figma/common/status-dark.png";
-
+function CommonStatusBar() {
   return (
-    <div className="pointer-events-none absolute left-0 right-0 top-0 z-[80] h-[44px] overflow-hidden">
+    <div className="pointer-events-none absolute left-0 right-0 top-0 z-[80] h-[54px] overflow-hidden">
       <Image
-        src={src}
+        src="/figma/common/status-bar.png"
         alt=""
         width={393}
-        height={44}
+        height={54}
         draggable={false}
         priority
-        className="block h-[44px] w-full"
+        className="block h-[54px] w-full object-contain"
       />
     </div>
   );
@@ -870,11 +886,40 @@ function EmbeddedGame({
   );
 }
 
-function SiteHeader() {
+function SiteHeader({
+  menuOpen,
+  onToggleMenu,
+}: {
+  menuOpen: boolean;
+  onToggleMenu: () => void;
+}) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 h-16 border-b border-[rgba(5,5,5,0.06)] bg-white/92 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="flex h-full w-full items-center px-10">
-        <div className="flex w-[304px] shrink-0 items-center">
+      <div className="flex h-full w-full items-center px-4 lg:px-10">
+        <button
+          type="button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+          onClick={onToggleMenu}
+          className="relative mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(5,5,5,0.06)] bg-white p-0 transition-colors active:bg-[rgba(0,0,0,0.04)] lg:hidden"
+        >
+          <span
+            className={`absolute h-[2px] w-[18px] rounded-full bg-[#111111] transition-transform duration-200 ease-out ${
+              menuOpen ? "translate-y-0 rotate-45" : "-translate-y-[6px]"
+            }`}
+          />
+          <span
+            className={`absolute h-[2px] w-[18px] rounded-full bg-[#111111] transition-opacity duration-150 ease-out ${
+              menuOpen ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          <span
+            className={`absolute h-[2px] w-[18px] rounded-full bg-[#111111] transition-transform duration-200 ease-out ${
+              menuOpen ? "translate-y-0 -rotate-45" : "translate-y-[6px]"
+            }`}
+          />
+        </button>
+        <div className="flex min-w-0 shrink-0 items-center lg:w-[304px]">
           <div className="flex min-w-0 items-center gap-3">
             <Image
               src="/brand/solvely-logo.png"
@@ -910,68 +955,107 @@ function SiteFooter() {
   );
 }
 
+function AppNavList({
+  activeKey,
+  onNavigate,
+}: {
+  activeKey: ScreenKey;
+  onNavigate?: () => void;
+}) {
+  return (
+    <nav className="space-y-6">
+      {NAV_GROUPS.map((group, groupIndex) => (
+        <section
+          key={group.label}
+          className={`px-1 ${
+            groupIndex === 0 ? "" : "border-t border-[rgba(5,5,5,0.06)] pt-5"
+          }`}
+        >
+          <div className="px-3">
+            <div className="text-[14px] font-semibold leading-7 text-[rgba(0,0,0,0.88)]">
+              {group.label}
+            </div>
+          </div>
+          <ul className="mt-2.5 space-y-0">
+            {group.keys.map((key) => {
+              const screen = screenByKey[key];
+              const isActive = screen.key === activeKey;
+              return (
+                <li key={screen.key}>
+                  <Link
+                    href={screen.href}
+                    onClick={onNavigate}
+                    className={`flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 transition-colors ${
+                      isActive
+                        ? "bg-[rgba(22,119,255,0.10)]"
+                        : "hover:bg-[rgba(0,0,0,0.02)]"
+                    }`}
+                  >
+                    <span
+                      className={`text-[14px] leading-7 ${
+                        isActive
+                          ? "font-medium text-[#1677FF]"
+                          : "font-normal text-[rgba(0,0,0,0.88)]"
+                      }`}
+                    >
+                      {screen.title}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+      <div aria-hidden="true" style={{ height: 80 }} />
+    </nav>
+  );
+}
+
 function AppSidebar({ activeKey }: { activeKey: ScreenKey }) {
   return (
     <aside className="sticky top-16 hidden h-[calc(100svh-4rem)] w-[304px] shrink-0 border-r border-[rgba(5,5,5,0.06)] bg-white lg:block">
       <div className="docs-sidebar-scrollbar h-full overflow-y-auto px-4 py-4">
-        <nav className="space-y-6">
-          {NAV_GROUPS.map((group, groupIndex) => (
-            <section
-              key={group.label}
-              className={`px-1 ${
-                groupIndex === 0
-                  ? ""
-                  : "border-t border-[rgba(5,5,5,0.06)] pt-5"
-              }`}
-            >
-              <div className="px-3">
-                <div className="text-[14px] font-semibold leading-7 text-[rgba(0,0,0,0.88)]">
-                  {group.label}
-                </div>
-              </div>
-              <ul className="mt-2.5 space-y-0">
-                {group.keys.map((key) => {
-                  const screen = screenByKey[key];
-                  const isActive = screen.key === activeKey;
-                  return (
-                    <li key={screen.key}>
-                      <Link
-                        href={screen.href}
-                        className={`flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 transition-colors ${
-                          isActive
-                            ? "bg-[rgba(22,119,255,0.10)]"
-                            : "hover:bg-[rgba(0,0,0,0.02)]"
-                        }`}
-                      >
-                        <span
-                          className={`text-[14px] leading-7 ${
-                            isActive
-                              ? "font-medium text-[#1677FF]"
-                              : "font-normal text-[rgba(0,0,0,0.88)]"
-                          }`}
-                        >
-                          {screen.title}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
-          <div aria-hidden="true" style={{ height: 80 }} />
-        </nav>
+        <AppNavList activeKey={activeKey} />
       </div>
     </aside>
   );
 }
 
+function MobileNavDrawer({
+  activeKey,
+  open,
+  onClose,
+}: {
+  activeKey: ScreenKey;
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <div className="lg:hidden">
+      <div
+        className={`fixed inset-0 top-16 z-30 bg-black/20 transition-opacity duration-200 ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={onClose}
+      />
+      <aside
+        className={`fixed bottom-0 left-0 top-16 z-30 w-[304px] max-w-[82vw] border-r border-[rgba(5,5,5,0.06)] bg-white shadow-[24px_0_48px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="docs-sidebar-scrollbar h-full overflow-y-auto px-4 py-4">
+          <AppNavList activeKey={activeKey} onNavigate={onClose} />
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 function IPhoneFrame({
   children,
-  statusBarColor,
 }: {
   children: ReactNode;
-  statusBarColor: "#FFFFFF" | "#111111";
 }) {
   const preset = PHONE_PRESET;
 
@@ -998,7 +1082,7 @@ function IPhoneFrame({
         }}
       >
         {children}
-        <CommonStatusBar color={statusBarColor} />
+        <CommonStatusBar />
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -1139,25 +1223,169 @@ function AutoScaledPhoneFrame({ children }: { children: ReactNode }) {
   );
 }
 
-function SimulatorPreview({ activeKey }: { activeKey: ScreenKey }) {
-  const statusBarColor = activeKey === "home" ? "#FFFFFF" : "#111111";
+function StudyExperimentSwitch({
+  value,
+  onChange,
+}: {
+  value: StudyExperiment;
+  onChange: (value: StudyExperiment) => void;
+}) {
+  const options: { value: StudyExperiment; label: string }[] = [
+    { value: "experiment-1", label: "实验组1" },
+    { value: "experiment-2", label: "实验组2" },
+  ];
+  const activeIndex = options.findIndex((option) => option.value === value);
+  const listRef = useRef<HTMLUListElement>(null);
+  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const [indicator, setIndicator] = useState({
+    top: 0,
+    left: 0,
+    ready: false,
+  });
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const list = listRef.current;
+      const button = buttonRefs.current[activeIndex];
+      if (!list || !button) return;
+
+      const listRect = list.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+
+      setIndicator({
+        top: buttonRect.top - listRect.top + buttonRect.height / 2,
+        left:
+          buttonRect.right -
+          listRect.left +
+          STUDY_EXPERIMENT_INDICATOR_GAP,
+        ready: true,
+      });
+    };
+
+    const rafId = window.requestAnimationFrame(updateIndicator);
+    const observer = new ResizeObserver(updateIndicator);
+
+    if (listRef.current) observer.observe(listRef.current);
+    buttonRefs.current.forEach((button) => {
+      if (button) observer.observe(button);
+    });
+
+    window.addEventListener("resize", updateIndicator);
+
+    return () => {
+      observer.disconnect();
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updateIndicator);
+    };
+  }, [activeIndex, options.length]);
 
   return (
-    <div className="relative h-full min-h-0 w-full">
-      <div className="flex h-full min-h-0 min-w-0 items-center justify-center overflow-visible px-6 py-2">
-        <AutoScaledPhoneFrame>
-          <IPhoneFrame statusBarColor={statusBarColor}>
-            <ScreenPreview activeKey={activeKey} />
-          </IPhoneFrame>
-        </AutoScaledPhoneFrame>
-      </div>
+    <div
+      className="pointer-events-auto fixed hidden min-h-0 items-center justify-end xl:flex"
+      style={{
+        right: STUDY_EXPERIMENT_LIST_RIGHT,
+        top: "50%",
+        width: STUDY_EXPERIMENT_LIST_W,
+        transform: "translateY(-50%)",
+        zIndex: 30,
+      }}
+    >
+      <ul
+        ref={listRef}
+        className="relative flex flex-col items-end gap-10"
+        style={{
+          width: STUDY_EXPERIMENT_LIST_W,
+          zIndex: 30,
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute"
+          style={{
+            top: indicator.top,
+            left: indicator.left,
+            width: STUDY_EXPERIMENT_INDICATOR_W,
+            height: STUDY_EXPERIMENT_INDICATOR_H,
+            background: STUDY_EXPERIMENT_ACTIVE_COLOR,
+            opacity: indicator.ready ? 1 : 0,
+            transform: "translateY(-50%)",
+            transition: [
+              `top 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
+              `left 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
+              "opacity 160ms ease",
+            ].join(", "),
+          }}
+        />
+        {options.map((option, i) => {
+          const active = i === activeIndex;
+        return (
+          <li key={option.value} className="block">
+            <button
+              ref={(node) => {
+                buttonRefs.current[i] = node;
+              }}
+              type="button"
+              onClick={() => onChange(option.value)}
+              className="bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
+              style={{
+                fontFamily:
+                  "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+                fontSize: 14,
+                lineHeight: 1.5,
+                fontWeight: 500,
+                color: active
+                  ? STUDY_EXPERIMENT_ACTIVE_COLOR
+                  : STUDY_EXPERIMENT_INACTIVE_COLOR,
+              }}
+            >
+              {option.label}
+            </button>
+          </li>
+        );
+        })}
+      </ul>
     </div>
   );
 }
 
-function ScreenPreview({ activeKey }: { activeKey: ScreenKey }) {
-  if (activeKey === "home") return <HomePreview />;
-  if (activeKey === "study") return <StudyPreview />;
+function SimulatorPreview({
+  activeKey,
+  studyExperiment,
+  onStudyExperimentChange,
+}: {
+  activeKey: ScreenKey;
+  studyExperiment: StudyExperiment;
+  onStudyExperimentChange: (value: StudyExperiment) => void;
+}) {
+  return (
+    <div className="relative h-full min-h-0 w-full">
+      <div className="flex h-full min-h-0 min-w-0 items-center justify-center overflow-visible px-6 py-2">
+        <AutoScaledPhoneFrame>
+          <IPhoneFrame>
+            <ScreenPreview activeKey={activeKey} studyExperiment={studyExperiment} />
+          </IPhoneFrame>
+        </AutoScaledPhoneFrame>
+      </div>
+      {activeKey === "study" ? (
+        <StudyExperimentSwitch
+          value={studyExperiment}
+          onChange={onStudyExperimentChange}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function ScreenPreview({
+  activeKey,
+  studyExperiment = "experiment-1",
+}: {
+  activeKey: ScreenKey;
+  studyExperiment?: StudyExperiment;
+}) {
+  if (activeKey === "home") return <HomeV2Preview />;
+  if (activeKey === "solve") return <HomePreview />;
+  if (activeKey === "study") return <StudyPreview experiment={studyExperiment} />;
   if (activeKey === "tutor") return <TutorPreview />;
   if (activeKey === "flash-card-stack") return <FlashCardTransitionPreview />;
   if (activeKey === "flash-card-flip-swipe-away") {
@@ -1171,16 +1399,31 @@ function ScreenPreview({ activeKey }: { activeKey: ScreenKey }) {
 export default function Home() {
   const pathname = usePathname();
   const activeScreen = getActiveScreen(pathname);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [studyExperiment, setStudyExperiment] =
+    useState<StudyExperiment>("experiment-1");
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader
+        menuOpen={mobileNavOpen}
+        onToggleMenu={() => setMobileNavOpen((open) => !open)}
+      />
+      <MobileNavDrawer
+        activeKey={activeScreen.key}
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+      />
       <div className="mt-16 flex h-[calc(100svh-4rem)] w-full">
         <AppSidebar activeKey={activeScreen.key} />
         <main className="flex min-w-0 flex-1 justify-center overflow-hidden">
           <div className="flex h-full min-h-0 w-full max-w-[1280px] flex-col px-10 pb-8 pt-10">
             <div className="min-h-0 flex-1">
-              <SimulatorPreview activeKey={activeScreen.key} />
+              <SimulatorPreview
+                activeKey={activeScreen.key}
+                studyExperiment={studyExperiment}
+                onStudyExperimentChange={setStudyExperiment}
+              />
             </div>
             <SiteFooter />
           </div>
