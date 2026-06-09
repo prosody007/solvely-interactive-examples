@@ -148,13 +148,11 @@ let cachedPhoneScale: number | undefined;
 function CommonStatusBar() {
   return (
     <div className="pointer-events-none absolute left-0 right-0 top-0 z-[80] h-[54px] overflow-hidden">
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src="/figma/common/status-bar.png"
         alt=""
-        width={393}
-        height={54}
         draggable={false}
-        priority
         className="block h-[54px] w-full object-contain"
       />
     </div>
@@ -1069,7 +1067,7 @@ function IPhoneFrame({
       }}
     >
       <div
-        className="absolute flex items-center justify-center overflow-hidden bg-white"
+        className="absolute flex items-center justify-center overflow-hidden"
         style={{
           left: preset.SCREEN_OFFSET_X,
           top: preset.SCREEN_OFFSET_Y,
