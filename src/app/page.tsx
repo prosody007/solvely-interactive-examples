@@ -5,7 +5,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { HomePreview } from "@/components/preview/home-preview";
-import { HomeV2Preview } from "@/components/preview/home-v2-preview";
+import {
+  HomeV2Preview,
+  type HomeExperimentVariant,
+} from "@/components/preview/home-v2-preview";
 import {
   StudyPreview,
   type StudyExperimentVariant,
@@ -28,6 +31,7 @@ type ScreenKey =
   | "practice-game";
 
 type StudyExperiment = StudyExperimentVariant;
+type HomeExperiment = HomeExperimentVariant;
 
 const SCREENS: {
   key: ScreenKey;
@@ -134,8 +138,6 @@ const PHONE_PRESET = {
 } as const;
 
 const PHONE_PREVIEW_GAP = 6;
-const STUDY_EXPERIMENT_LIST_W = 260;
-const STUDY_EXPERIMENT_LIST_RIGHT = 40;
 const STUDY_EXPERIMENT_ACTIVE_COLOR = "rgba(0,0,0,0.88)";
 const STUDY_EXPERIMENT_INACTIVE_COLOR = "rgba(0,0,0,0.45)";
 const STUDY_EXPERIMENT_INDICATOR_GAP = 8;
@@ -1221,17 +1223,15 @@ function AutoScaledPhoneFrame({ children }: { children: ReactNode }) {
   );
 }
 
-function StudyExperimentSwitch({
+function ExperimentSwitch<T extends string>({
   value,
   onChange,
+  options,
 }: {
-  value: StudyExperiment;
-  onChange: (value: StudyExperiment) => void;
+  value: T;
+  onChange: (value: T) => void;
+  options: { value: T; label: string }[];
 }) {
-  const options: { value: StudyExperiment; label: string }[] = [
-    { value: "experiment-1", label: "实验组1" },
-    { value: "experiment-2", label: "实验组2" },
-  ];
   const activeIndex = options.findIndex((option) => option.value === value);
   const listRef = useRef<HTMLUListElement>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -1278,27 +1278,17 @@ function StudyExperimentSwitch({
   }, [activeIndex, options.length]);
 
   return (
-    <div
-      className="pointer-events-auto fixed hidden min-h-0 items-center justify-end xl:flex"
-      style={{
-        right: STUDY_EXPERIMENT_LIST_RIGHT,
-        top: "50%",
-        width: STUDY_EXPERIMENT_LIST_W,
-        transform: "translateY(-50%)",
-        zIndex: 30,
-      }}
-    >
+    <div className="pointer-events-auto fixed right-3 top-1/2 z-30 flex min-h-0 w-[112px] -translate-y-1/2 items-center justify-end sm:right-5 sm:w-[160px] xl:right-[40px] xl:w-[260px]">
       <ul
         ref={listRef}
-        className="relative flex flex-col items-end gap-10"
+        className="relative flex w-full flex-col items-end gap-6 sm:gap-8 xl:gap-10"
         style={{
-          width: STUDY_EXPERIMENT_LIST_W,
           zIndex: 30,
         }}
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute"
+          className="pointer-events-none absolute hidden xl:block"
           style={{
             top: indicator.top,
             left: indicator.left,
@@ -1348,11 +1338,15 @@ function StudyExperimentSwitch({
 
 function SimulatorPreview({
   activeKey,
+  homeExperiment,
   studyExperiment,
+  onHomeExperimentChange,
   onStudyExperimentChange,
 }: {
   activeKey: ScreenKey;
+  homeExperiment: HomeExperiment;
   studyExperiment: StudyExperiment;
+  onHomeExperimentChange: (value: HomeExperiment) => void;
   onStudyExperimentChange: (value: StudyExperiment) => void;
 }) {
   return (
@@ -1360,14 +1354,32 @@ function SimulatorPreview({
       <div className="flex h-full min-h-0 min-w-0 items-center justify-center overflow-visible px-6 py-2">
         <AutoScaledPhoneFrame>
           <IPhoneFrame>
-            <ScreenPreview activeKey={activeKey} studyExperiment={studyExperiment} />
+            <ScreenPreview
+              activeKey={activeKey}
+              homeExperiment={homeExperiment}
+              studyExperiment={studyExperiment}
+            />
           </IPhoneFrame>
         </AutoScaledPhoneFrame>
       </div>
       {activeKey === "study" ? (
-        <StudyExperimentSwitch
+        <ExperimentSwitch
           value={studyExperiment}
           onChange={onStudyExperimentChange}
+          options={[
+            { value: "experiment-1", label: "实验组1" },
+            { value: "experiment-2", label: "实验组2" },
+          ]}
+        />
+      ) : null}
+      {activeKey === "home" ? (
+        <ExperimentSwitch
+          value={homeExperiment}
+          onChange={onHomeExperimentChange}
+          options={[
+            { value: "version-1", label: "版本一" },
+            { value: "version-2", label: "版本二" },
+          ]}
         />
       ) : null}
     </div>
@@ -1376,12 +1388,14 @@ function SimulatorPreview({
 
 function ScreenPreview({
   activeKey,
+  homeExperiment = "version-1",
   studyExperiment = "experiment-1",
 }: {
   activeKey: ScreenKey;
+  homeExperiment?: HomeExperiment;
   studyExperiment?: StudyExperiment;
 }) {
-  if (activeKey === "home") return <HomeV2Preview />;
+  if (activeKey === "home") return <HomeV2Preview experiment={homeExperiment} />;
   if (activeKey === "solve") return <HomePreview />;
   if (activeKey === "study") return <StudyPreview experiment={studyExperiment} />;
   if (activeKey === "tutor") return <TutorPreview />;
@@ -1398,6 +1412,8 @@ export default function Home() {
   const pathname = usePathname();
   const activeScreen = getActiveScreen(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [homeExperiment, setHomeExperiment] =
+    useState<HomeExperiment>("version-1");
   const [studyExperiment, setStudyExperiment] =
     useState<StudyExperiment>("experiment-1");
 
@@ -1419,7 +1435,9 @@ export default function Home() {
             <div className="min-h-0 flex-1">
               <SimulatorPreview
                 activeKey={activeScreen.key}
+                homeExperiment={homeExperiment}
                 studyExperiment={studyExperiment}
+                onHomeExperimentChange={setHomeExperiment}
                 onStudyExperimentChange={setStudyExperiment}
               />
             </div>

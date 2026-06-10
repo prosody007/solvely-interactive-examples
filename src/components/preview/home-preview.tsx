@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ScanIcon, StudyIcon, MeIcon } from "./tabbar-preview";
 import { DemoCanvas } from "./demo-canvas";
 import { useDisplayDevice } from "@/components/device-context";
@@ -19,13 +19,23 @@ const TABS = [
   { id: "me", label: "Me", Icon: MeIcon },
 ];
 
-export function HomePreview() {
+export function HomePreview({
+  hideGuidedPopover = false,
+  showModeSegment = true,
+  bottomBar,
+}: {
+  hideGuidedPopover?: boolean;
+  showModeSegment?: boolean;
+  bottomBar?: ReactNode;
+} = {}) {
+  const useEmbeddedSolveLayout = hideGuidedPopover && !showModeSegment;
   const [active, setActive] = useState(0);
   const [tapped, setTapped] = useState(-1);
   const [captureMode, setCaptureMode] = useState(0);
   const [popoverKey, setPopoverKey] = useState(0);
-  const [popoverOpen, setPopoverOpen] = useState(true);
+  const [popoverOpen, setPopoverOpen] = useState(!hideGuidedPopover);
   const replayPopover = () => {
+    if (hideGuidedPopover) return;
     setPopoverOpen(true);
     setPopoverKey((k) => k + 1);
   };
@@ -50,7 +60,12 @@ export function HomePreview() {
         alt=""
         draggable={false}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ objectFit: "cover", objectPosition: "center center" }}
+        style={{
+          objectFit: "cover",
+          objectPosition: useEmbeddedSolveLayout
+            ? "center bottom"
+            : "center center",
+        }}
       />
 
       {/* 全屏蒙层 — 纯黑 10% 透明度，叠在背景图片之上 */}
@@ -168,9 +183,13 @@ export function HomePreview() {
           popoverOpen={popoverOpen}
           onReplayPopover={replayPopover}
           onClosePopover={closePopover}
+          showPopover={!hideGuidedPopover}
+          showModeSegment={showModeSegment}
+          useEmbeddedSolveLayout={useEmbeddedSolveLayout}
         />
 
-        <div
+        {bottomBar ?? (
+          <div
           className="flex"
           style={{
             background: TAB_BG,
@@ -225,7 +244,8 @@ export function HomePreview() {
               </button>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Home indicator 已统一由 PhoneFrame 渲染，这里不再重复 */}
@@ -260,6 +280,9 @@ function CaptureMode({
   popoverOpen,
   onReplayPopover,
   onClosePopover,
+  showPopover,
+  showModeSegment,
+  useEmbeddedSolveLayout,
 }: {
   mode: number;
   setMode: (n: number) => void;
@@ -267,7 +290,12 @@ function CaptureMode({
   popoverOpen: boolean;
   onReplayPopover: () => void;
   onClosePopover: () => void;
+  showPopover: boolean;
+  showModeSegment: boolean;
+  useEmbeddedSolveLayout: boolean;
 }) {
+  const captureBottom = useEmbeddedSolveLayout ? 52 : 20;
+
   return (
     <div
       className="relative w-full"
@@ -279,10 +307,14 @@ function CaptureMode({
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: 0,
-          height: 160,
-          background:
-            "linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0) 100%)",
+          bottom: useEmbeddedSolveLayout ? -112 : 0,
+          height: useEmbeddedSolveLayout ? 272 : 160,
+          background: useEmbeddedSolveLayout
+            ? "linear-gradient(180deg, rgba(17, 17, 17, 0.8) 0%, rgba(17, 17, 17, 0.0001) 100%)"
+            : "linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0) 100%)",
+          backdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
+          WebkitBackdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
+          transform: useEmbeddedSolveLayout ? "rotate(-180deg)" : undefined,
         }}
       />
 
@@ -293,7 +325,7 @@ function CaptureMode({
           // 19% 对应 phone 393 内 left=75（width 41 居中于 75 处）；fill 模式下随 device 比例展开
           left: "19%",
           transform: "translateX(-50%)",
-          bottom: 20,
+          bottom: captureBottom,
           width: 41,
           display: "flex",
           flexDirection: "column",
@@ -361,7 +393,7 @@ function CaptureMode({
           // 81% 对应 phone 393 内 left=318；fill 模式下随 device 比例展开
           left: "81%",
           transform: "translateX(-50%)",
-          bottom: 20,
+          bottom: captureBottom,
           width: 41,
           display: "flex",
           flexDirection: "column",
@@ -391,7 +423,7 @@ function CaptureMode({
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 20,
+          bottom: captureBottom,
           transform: "translateX(-50%)",
           width: 90,
           height: 90,
@@ -401,15 +433,16 @@ function CaptureMode({
         }}
       />
 
-      {/* 顶部 Segmented (Quick Solve / Guided Solve) — Figma node 1467:14119
-          交互动画与 Segmented Control 共用：滑动指示器 + 按压 0.96 缩放 */}
-      <SegmentedControl
-        selected={mode}
-        setSelected={setMode}
-        popoverKey={popoverKey}
-        popoverOpen={popoverOpen}
-        onClosePopover={onClosePopover}
-      />
+      {showModeSegment ? (
+        <SegmentedControl
+          selected={mode}
+          setSelected={setMode}
+          popoverKey={popoverKey}
+          popoverOpen={popoverOpen}
+          onClosePopover={onClosePopover}
+          showPopover={showPopover}
+        />
+      ) : null}
     </div>
   );
 }
@@ -435,12 +468,14 @@ function SegmentedControl({
   popoverKey,
   popoverOpen,
   onClosePopover,
+  showPopover,
 }: {
   selected: number;
   setSelected: (n: number) => void;
   popoverKey: number;
   popoverOpen: boolean;
   onClosePopover: () => void;
+  showPopover: boolean;
 }) {
   const [pressed, setPressed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -498,7 +533,7 @@ function SegmentedControl({
         pointerEvents: "auto",
       }}
     >
-      {guidedCenter !== null && containerWidth > 0 && popoverOpen ? (
+      {showPopover && guidedCenter !== null && containerWidth > 0 && popoverOpen ? (
         <CapturePopover
           key={popoverKey}
           guidedCenter={guidedCenter}
