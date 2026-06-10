@@ -56,7 +56,7 @@ const SCREENS: {
   {
     key: "onboarding",
     title: "Onboarding",
-    href: "/",
+    href: "/onboarding",
   },
   {
     key: "tutor",
