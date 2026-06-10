@@ -16,32 +16,32 @@ const CREATE_ITEMS = [
   {
     title: "Study Guide",
     subtitle: "Organize key ideas",
-    icon: `${ASSET}/group2087325676.svg`,
-  },
-  {
-    title: "Lecture Notes",
-    subtitle: "Tap, record, summarize",
-    icon: `${ASSET}/frame2147224848.svg`,
-  },
-  {
-    title: "Flashcards",
-    subtitle: "Spaced repetition",
-    icon: `${ASSET}/frame2147224824.svg`,
+    icon: `${ASSET}/create-study-guide@3x.png`,
   },
   {
     title: "Quiz",
     subtitle: "Personalized practice",
-    icon: `${ASSET}/frame2147224825.svg`,
+    icon: `${ASSET}/create-quiz@3x.png`,
   },
   {
-    title: "Mock Exam",
-    subtitle: "AI-powered exam prep",
-    icon: `${ASSET}/group2087325616.svg`,
+    title: "Flashcards",
+    subtitle: "Spaced repetition",
+    icon: `${ASSET}/create-flashcards@3x.png`,
   },
   {
     title: "Podcast",
     subtitle: "Study hands-free",
-    icon: `${ASSET}/podcast.svg`,
+    icon: `${ASSET}/create-podcast@3x.png`,
+  },
+  {
+    title: "Mock Exam",
+    subtitle: "AI-powered exam prep",
+    icon: `${ASSET}/create-mock-exam@3x.png`,
+  },
+  {
+    title: "Mini Games",
+    subtitle: "AI-powered exam prep",
+    icon: `${ASSET}/create-mini-games@3x.png`,
   },
 ] as const;
 
@@ -85,7 +85,6 @@ const STUDY_SETS = [
 
 function CreateStudyCard({
   title,
-  subtitle,
   icon,
   compact = false,
 }: {
@@ -96,19 +95,14 @@ function CreateStudyCard({
 }) {
   return (
     <div
-      className={`flex min-h-[118px] shrink-0 flex-col justify-center gap-[8px] rounded-[24px] bg-white px-[16px] py-[12px] shadow-[0_12px_16px_rgba(0,0,0,0.06)] ${
+      className={`flex min-h-[96px] shrink-0 flex-col justify-center gap-[8px] rounded-[24px] bg-white px-[16px] py-[12px] shadow-[0_12px_16px_rgba(0,0,0,0.06)] ${
         compact ? "w-max min-w-[148px]" : "min-w-0 flex-1"
       }`}
     >
-      <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ECF5FF]">
-        <img src={icon} alt="" draggable={false} className="h-[24px] w-[24px]" />
-      </div>
-      <div className="flex w-full flex-col items-start gap-[2px] pl-[2px]">
-        <div className="whitespace-nowrap text-[16px] font-semibold leading-[1.4] text-[#111111]">
+      <img src={icon} alt="" draggable={false} className="h-[44px] w-[44px] shrink-0" />
+      <div className="flex w-full flex-col items-start pl-[2px]">
+        <div className="text-[16px] font-semibold leading-[1.4] text-[#111111]">
           {title}
-        </div>
-        <div className="whitespace-nowrap text-[12px] leading-none text-[#989B9E]">
-          {subtitle}
         </div>
       </div>
     </div>
@@ -125,13 +119,19 @@ function CreateStudySetSection({
     startX: number;
     startScrollLeft: number;
   } | null>(null);
+  const columns = 2;
+  const scrollRowSize = Math.ceil(CREATE_ITEMS.length / 2);
+  const scrollRows = [
+    CREATE_ITEMS.slice(0, scrollRowSize),
+    CREATE_ITEMS.slice(scrollRowSize),
+  ];
 
   return (
     <section className="flex w-full flex-col items-start gap-[12px]">
       <h2 className="m-0 font-[var(--font-poppins)] text-[18px] font-semibold leading-[1.3] text-[#111111]">
-        Create Study Set
+        Create aStudy & Exam Prep Set
       </h2>
-      {variant === "version-2" ? (
+      {variant === "version-1" ? (
         <div
           className="phone-scrollbar-hidden -mx-[20px] -my-[20px] w-[393px] cursor-grab overflow-x-auto py-[20px] active:cursor-grabbing"
           onPointerDown={(event) => {
@@ -169,20 +169,30 @@ function CreateStudySetSection({
             dragStateRef.current = null;
           }}
         >
-          <div className="flex w-max items-start gap-[8px] px-[20px]">
-            {CREATE_ITEMS.map((item) => (
-              <CreateStudyCard key={item.title} {...item} compact />
+          <div className="flex w-max flex-col gap-[8px] px-[20px]">
+            {scrollRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="flex w-max items-center gap-[8px]">
+                {row.map((item) => (
+                  <CreateStudyCard key={item.title} {...item} compact />
+                ))}
+              </div>
             ))}
           </div>
         </div>
       ) : (
         <div className="flex w-full flex-col gap-[8px]">
-          {[0, 2, 4].map((start) => (
-            <div key={start} className="flex w-full items-center gap-[8px]">
-              <CreateStudyCard {...CREATE_ITEMS[start]} />
-              <CreateStudyCard {...CREATE_ITEMS[start + 1]} />
-            </div>
-          ))}
+          {Array.from({ length: Math.ceil(CREATE_ITEMS.length / columns) }).map(
+            (_, rowIndex) => (
+              <div key={rowIndex} className="flex w-full items-center gap-[8px]">
+                {CREATE_ITEMS.slice(
+                  rowIndex * columns,
+                  rowIndex * columns + columns,
+                ).map((item) => (
+                  <CreateStudyCard key={item.title} {...item} />
+                ))}
+              </div>
+            ),
+          )}
         </div>
       )}
     </section>
@@ -263,7 +273,7 @@ function HomeV2Header() {
     <div className="absolute left-0 right-0 top-[44px] z-20 flex h-[66px] items-center justify-between bg-[#F6F8FA] px-[20px] py-[16px]">
       <div className="flex flex-col items-start gap-[6px]">
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
-          Solve. Study. Master
+          Solve. Study. Exam Prep
         </h1>
         <p className="m-0 text-[12px] leading-[12px] text-[#989B9E]">
           AI notes from new recording are ready
@@ -556,7 +566,7 @@ export function HomeV2Preview({
             <div className="phone-scrollbar-hidden absolute inset-x-0 bottom-0 top-[110px] overflow-y-auto pb-[160px]">
               <div className="flex w-full flex-col items-start gap-[24px] px-[20px] py-[8px]">
                 <div className="flex w-full items-center gap-[8px]">
-                  <div className="flex h-[160px] min-w-0 flex-1 flex-col justify-between rounded-[24px] bg-[linear-gradient(124deg,#1D47FE_0%,#4A9DFC_100%)] px-[16px] py-[20px]">
+                  <div className="flex h-[160px] min-w-0 flex-1 flex-col justify-between rounded-[24px] bg-[linear-gradient(127deg,#1D47FE_0%,#4A9DFC_100%)] px-[16px] py-[20px]">
                     <div className="flex flex-col items-start gap-[8px] whitespace-nowrap">
                       <div className="text-[22px] font-bold leading-[22px] text-white">
                         Snap&amp;Solve
@@ -567,25 +577,25 @@ export function HomeV2Preview({
                     </div>
                     <div className="flex w-full justify-end">
                       <img
-                        src={`${ASSET}/frame2147226127.svg`}
+                        src={`${ASSET}/hero-snap-solve.svg`}
                         alt=""
                         draggable={false}
                         className="h-[56px] w-[56px]"
                       />
                     </div>
                   </div>
-                  <div className="flex h-[160px] w-[154px] shrink-0 flex-col justify-between rounded-[24px] bg-[linear-gradient(119deg,#4E0EFE_0%,#7D74FB_100%)] p-[20px]">
+                  <div className="flex h-[160px] w-[132px] shrink-0 flex-col justify-between rounded-[24px] bg-[linear-gradient(115deg,#E06C00_0%,#FFB875_100%)] px-[16px] py-[20px]">
                     <div className="flex flex-col items-start gap-[8px] whitespace-nowrap">
                       <div className="text-[18px] font-bold leading-[22px] text-white">
-                        Record Class
+                        Record
                       </div>
                       <div className="text-[16px] font-medium leading-[16px] text-white/60">
                         Lecture Note
                       </div>
                     </div>
-                    <div className="flex w-full justify-end">
+                    <div className="flex w-full items-center justify-end">
                       <img
-                        src={`${ASSET}/frame2147226124.svg`}
+                        src={`${ASSET}/hero-record.svg`}
                         alt=""
                         draggable={false}
                         className="h-[56px] w-[56px]"
