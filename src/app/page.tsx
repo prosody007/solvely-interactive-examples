@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { HomePreview } from "@/components/preview/home-preview";
 import {
   HomeV2Preview,
@@ -115,6 +121,14 @@ function getActiveScreen(pathname: string): (typeof SCREENS)[number] {
   return SCREENS.find((screen) => screen.href === pathname) ?? SCREENS[0];
 }
 
+function isHomeExperiment(value: string | null): value is HomeExperiment {
+  return value === "version-1" || value === "version-2";
+}
+
+function isStudyExperiment(value: string | null): value is StudyExperiment {
+  return value === "experiment-1" || value === "experiment-2";
+}
+
 const PHONE_DROP_SHADOW =
   "drop-shadow(20px 20px 60px rgba(251, 233, 217, 0.7)) drop-shadow(140px 100px 240px rgba(28, 19, 14, 0.4))";
 
@@ -140,8 +154,8 @@ const PHONE_PRESET = {
 const PHONE_PREVIEW_GAP = 6;
 const STUDY_EXPERIMENT_ACTIVE_COLOR = "rgba(0,0,0,0.88)";
 const STUDY_EXPERIMENT_INACTIVE_COLOR = "rgba(0,0,0,0.45)";
-const STUDY_EXPERIMENT_INDICATOR_GAP = 8;
-const STUDY_EXPERIMENT_INDICATOR_W = 12;
+const STUDY_EXPERIMENT_INDICATOR_GAP = 16;
+const STUDY_EXPERIMENT_INDICATOR_W = 24;
 const STUDY_EXPERIMENT_INDICATOR_H = 2;
 const STUDY_EXPERIMENT_INDICATOR_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -1233,88 +1247,23 @@ function ExperimentSwitch<T extends string>({
   options: { value: T; label: string }[];
 }) {
   const activeIndex = options.findIndex((option) => option.value === value);
-  const listRef = useRef<HTMLUListElement>(null);
-  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const [indicator, setIndicator] = useState({
-    top: 0,
-    left: 0,
-    ready: false,
-  });
-
-  useLayoutEffect(() => {
-    const updateIndicator = () => {
-      const list = listRef.current;
-      const button = buttonRefs.current[activeIndex];
-      if (!list || !button) return;
-
-      const listRect = list.getBoundingClientRect();
-      const buttonRect = button.getBoundingClientRect();
-
-      setIndicator({
-        top: buttonRect.top - listRect.top + buttonRect.height / 2,
-        left:
-          buttonRect.right -
-          listRect.left +
-          STUDY_EXPERIMENT_INDICATOR_GAP,
-        ready: true,
-      });
-    };
-
-    const rafId = window.requestAnimationFrame(updateIndicator);
-    const observer = new ResizeObserver(updateIndicator);
-
-    if (listRef.current) observer.observe(listRef.current);
-    buttonRefs.current.forEach((button) => {
-      if (button) observer.observe(button);
-    });
-
-    window.addEventListener("resize", updateIndicator);
-
-    return () => {
-      observer.disconnect();
-      window.cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", updateIndicator);
-    };
-  }, [activeIndex, options.length]);
 
   return (
     <div className="pointer-events-auto fixed right-3 top-1/2 z-30 flex min-h-0 w-[112px] -translate-y-1/2 items-center justify-end sm:right-5 sm:w-[160px] xl:right-[40px] xl:w-[260px]">
       <ul
-        ref={listRef}
         className="relative flex w-full flex-col items-end gap-6 sm:gap-8 xl:gap-10"
         style={{
           zIndex: 30,
         }}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute hidden xl:block"
-          style={{
-            top: indicator.top,
-            left: indicator.left,
-            width: STUDY_EXPERIMENT_INDICATOR_W,
-            height: STUDY_EXPERIMENT_INDICATOR_H,
-            background: STUDY_EXPERIMENT_ACTIVE_COLOR,
-            opacity: indicator.ready ? 1 : 0,
-            transform: "translateY(-50%)",
-            transition: [
-              `top 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
-              `left 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
-              "opacity 160ms ease",
-            ].join(", "),
-          }}
-        />
         {options.map((option, i) => {
           const active = i === activeIndex;
         return (
           <li key={option.value} className="block">
             <button
-              ref={(node) => {
-                buttonRefs.current[i] = node;
-              }}
               type="button"
               onClick={() => onChange(option.value)}
-              className="bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
+              className="flex items-center bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
               style={{
                 fontFamily:
                   "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
@@ -1326,7 +1275,24 @@ function ExperimentSwitch<T extends string>({
                   : STUDY_EXPERIMENT_INACTIVE_COLOR,
               }}
             >
-              {option.label}
+              <span
+                aria-hidden="true"
+                className="hidden xl:block"
+                style={{
+                  width: STUDY_EXPERIMENT_INDICATOR_W,
+                  height: STUDY_EXPERIMENT_INDICATOR_H,
+                  marginRight: STUDY_EXPERIMENT_INDICATOR_GAP,
+                  background: STUDY_EXPERIMENT_ACTIVE_COLOR,
+                  opacity: active ? 1 : 0,
+                  transform: active ? "scaleX(1)" : "scaleX(0)",
+                  transformOrigin: "right center",
+                  transition: [
+                    `transform 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
+                    active ? "opacity 80ms linear" : "opacity 0ms linear 320ms",
+                  ].join(", "),
+                }}
+              />
+              <span>{option.label}</span>
             </button>
           </li>
         );
@@ -1410,12 +1376,44 @@ function ScreenPreview({
 
 export default function Home() {
   const pathname = usePathname();
+  const router = useRouter();
   const activeScreen = getActiveScreen(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [homeExperiment, setHomeExperiment] =
     useState<HomeExperiment>("version-1");
   const [studyExperiment, setStudyExperiment] =
     useState<StudyExperiment>("experiment-1");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const version = params.get("version");
+    const experiment = params.get("experiment");
+
+    if (isHomeExperiment(version)) {
+      setHomeExperiment(version);
+    }
+
+    if (isStudyExperiment(experiment)) {
+      setStudyExperiment(experiment);
+    }
+  }, [pathname]);
+
+  const updateQueryParam = (key: string, value: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set(key, value);
+    const query = params.toString();
+    router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+  };
+
+  const handleHomeExperimentChange = (value: HomeExperiment) => {
+    setHomeExperiment(value);
+    updateQueryParam("version", value);
+  };
+
+  const handleStudyExperimentChange = (value: StudyExperiment) => {
+    setStudyExperiment(value);
+    updateQueryParam("experiment", value);
+  };
 
   return (
     <>
@@ -1437,8 +1435,8 @@ export default function Home() {
                 activeKey={activeScreen.key}
                 homeExperiment={homeExperiment}
                 studyExperiment={studyExperiment}
-                onHomeExperimentChange={setHomeExperiment}
-                onStudyExperimentChange={setStudyExperiment}
+                onHomeExperimentChange={handleHomeExperimentChange}
+                onStudyExperimentChange={handleStudyExperimentChange}
               />
             </div>
             <SiteFooter />

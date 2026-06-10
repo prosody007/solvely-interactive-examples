@@ -97,14 +97,14 @@ function CreateStudyCard({
   return (
     <div
       className={`flex min-h-[118px] shrink-0 flex-col justify-center gap-[8px] rounded-[24px] bg-white px-[16px] py-[12px] shadow-[0_12px_16px_rgba(0,0,0,0.06)] ${
-        compact ? "w-[148px]" : "min-w-0 flex-1"
+        compact ? "w-max min-w-[148px]" : "min-w-0 flex-1"
       }`}
     >
       <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[12px] bg-[#ECF5FF]">
         <img src={icon} alt="" draggable={false} className="h-[24px] w-[24px]" />
       </div>
       <div className="flex w-full flex-col items-start gap-[2px] pl-[2px]">
-        <div className="text-[16px] font-semibold leading-[1.4] text-[#111111]">
+        <div className="whitespace-nowrap text-[16px] font-semibold leading-[1.4] text-[#111111]">
           {title}
         </div>
         <div className="whitespace-nowrap text-[12px] leading-none text-[#989B9E]">
