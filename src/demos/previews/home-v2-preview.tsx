@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useRef, useState } from "react";
-import { DemoCanvas } from "./demo-canvas";
+import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { HomePreview } from "./home-preview";
 
 export type HomeExperimentVariant = "version-1" | "version-2";
@@ -16,32 +16,32 @@ const CREATE_ITEMS = [
   {
     title: "Study Guide",
     subtitle: "Organize key ideas",
-    icon: `${ASSET}/create-study-guide@3x.png`,
+    icon: `${ASSET}/create-study-guide-new@3x.png`,
   },
   {
     title: "Quiz",
     subtitle: "Personalized practice",
-    icon: `${ASSET}/create-quiz@3x.png`,
+    icon: `${ASSET}/create-quiz-new@3x.png`,
   },
   {
     title: "Flashcards",
     subtitle: "Spaced repetition",
-    icon: `${ASSET}/create-flashcards@3x.png`,
+    icon: `${ASSET}/create-flashcards-new@3x.png`,
   },
   {
     title: "Podcast",
     subtitle: "Study hands-free",
-    icon: `${ASSET}/create-podcast@3x.png`,
+    icon: `${ASSET}/create-podcast-new@3x.png`,
   },
   {
     title: "Mock Exam",
     subtitle: "AI-powered exam prep",
-    icon: `${ASSET}/create-mock-exam@3x.png`,
+    icon: `${ASSET}/create-mock-exam-new@3x.png`,
   },
   {
     title: "Mini Games",
     subtitle: "AI-powered exam prep",
-    icon: `${ASSET}/create-mini-games@3x.png`,
+    icon: `${ASSET}/create-mini-games-new@3x.png`,
   },
 ] as const;
 
@@ -95,13 +95,13 @@ function CreateStudyCard({
 }) {
   return (
     <div
-      className={`flex min-h-[96px] shrink-0 flex-col justify-center gap-[8px] rounded-[24px] bg-white px-[16px] py-[12px] shadow-[0_12px_16px_rgba(0,0,0,0.06)] ${
+      className={`flex min-h-[96px] shrink-0 flex-col items-center justify-center gap-[8px] py-[12px] ${
         compact ? "w-max min-w-[148px]" : "min-w-0 flex-1"
       }`}
     >
       <img src={icon} alt="" draggable={false} className="h-[44px] w-[44px] shrink-0" />
-      <div className="flex w-full flex-col items-start pl-[2px]">
-        <div className="text-[16px] font-semibold leading-[1.4] text-[#111111]">
+      <div className="flex w-full flex-col items-center">
+        <div className="w-full truncate whitespace-nowrap text-center text-[14px] font-medium leading-[14px] text-[#111111]">
           {title}
         </div>
       </div>
@@ -119,8 +119,8 @@ function CreateStudySetSection({
     startX: number;
     startScrollLeft: number;
   } | null>(null);
-  const columns = 2;
-  const scrollRowSize = Math.ceil(CREATE_ITEMS.length / 2);
+  const columns = 3;
+  const scrollRowSize = columns;
   const scrollRows = [
     CREATE_ITEMS.slice(0, scrollRowSize),
     CREATE_ITEMS.slice(scrollRowSize),
@@ -129,7 +129,7 @@ function CreateStudySetSection({
   return (
     <section className="flex w-full flex-col items-start gap-[12px]">
       <h2 className="m-0 font-[var(--font-poppins)] text-[18px] font-semibold leading-[1.3] text-[#111111]">
-        Create aStudy & Exam Prep Set
+        Create Study Set
       </h2>
       {variant === "version-1" ? (
         <div
@@ -169,11 +169,11 @@ function CreateStudySetSection({
             dragStateRef.current = null;
           }}
         >
-          <div className="flex w-max flex-col gap-[8px] px-[20px]">
+          <div className="flex w-full flex-col gap-[8px] px-[20px]">
             {scrollRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="flex w-max items-center gap-[8px]">
+              <div key={rowIndex} className="flex w-full items-center gap-[8px]">
                 {row.map((item) => (
-                  <CreateStudyCard key={item.title} {...item} compact />
+                  <CreateStudyCard key={item.title} {...item} />
                 ))}
               </div>
             ))}
@@ -244,7 +244,7 @@ function StudySetRow({ item }: { item: (typeof STUDY_SETS)[number] }) {
     <div className="flex w-full items-center justify-center gap-[10px] rounded-[24px] border border-[#EEEEEE] bg-white p-[16px]">
       <StudySetIcon type={item.icon} />
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-[6px]">
-        <p className="m-0 line-clamp-2 text-[16px] font-semibold leading-[1.4] text-[#111111]">
+        <p className="m-0 line-clamp-2 text-[16px] font-medium leading-[1.4] text-[#111111]">
           {item.title}
         </p>
         <div className="flex items-center gap-[6px] text-[13px] leading-none text-[#989B9E]">
@@ -275,9 +275,6 @@ function HomeV2Header() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Exam Prep
         </h1>
-        <p className="m-0 text-[12px] leading-[12px] text-[#989B9E]">
-          AI notes from new recording are ready
-        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -493,7 +490,7 @@ function HomeV2BottomBarContent({
         <button
           type="button"
           onClick={onToggleUpload}
-          className="relative h-[62px] w-[62px] overflow-hidden rounded-full border-0 bg-white/60 p-0 shadow-[0_12px_24px_rgba(0,0,0,0.12)] backdrop-blur-[6px]"
+          className="relative h-[62px] w-[62px] overflow-hidden rounded-full border-0 bg-[#007AFF] p-0 shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
           style={{
             zIndex: uploadOpen ? 140 : 0,
             opacity: showPlus ? 1 : 0,
@@ -566,42 +563,18 @@ export function HomeV2Preview({
             <div className="phone-scrollbar-hidden absolute inset-x-0 bottom-0 top-[110px] overflow-y-auto pb-[160px]">
               <div className="flex w-full flex-col items-start gap-[24px] px-[20px] py-[8px]">
                 <div className="flex w-full items-center gap-[8px]">
-                  <div className="flex h-[160px] min-w-0 flex-1 flex-col justify-between rounded-[24px] bg-[linear-gradient(127deg,#1D47FE_0%,#4A9DFC_100%)] px-[16px] py-[20px]">
-                    <div className="flex flex-col items-start gap-[8px] whitespace-nowrap">
-                      <div className="text-[22px] font-bold leading-[22px] text-white">
-                        Snap&amp;Solve
-                      </div>
-                      <div className="text-[16px] font-medium leading-[16px] text-white/60">
-                        Step by Step
-                      </div>
-                    </div>
-                    <div className="flex w-full justify-end">
-                      <img
-                        src={`${ASSET}/hero-snap-solve.svg`}
-                        alt=""
-                        draggable={false}
-                        className="h-[56px] w-[56px]"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex h-[160px] w-[132px] shrink-0 flex-col justify-between rounded-[24px] bg-[linear-gradient(115deg,#E06C00_0%,#FFB875_100%)] px-[16px] py-[20px]">
-                    <div className="flex flex-col items-start gap-[8px] whitespace-nowrap">
-                      <div className="text-[18px] font-bold leading-[22px] text-white">
-                        Record
-                      </div>
-                      <div className="text-[16px] font-medium leading-[16px] text-white/60">
-                        Lecture Note
-                      </div>
-                    </div>
-                    <div className="flex w-full items-center justify-end">
-                      <img
-                        src={`${ASSET}/hero-record.svg`}
-                        alt=""
-                        draggable={false}
-                        className="h-[56px] w-[56px]"
-                      />
-                    </div>
-                  </div>
+                  <img
+                    src={`${ASSET}/top-card-snap-solve@3x.png`}
+                    alt=""
+                    draggable={false}
+                    className="block h-[120px] min-w-0 flex-1 rounded-[20px] object-contain"
+                  />
+                  <img
+                    src={`${ASSET}/top-card-record@3x.png`}
+                    alt=""
+                    draggable={false}
+                    className="block h-[120px] w-[150px] shrink-0 rounded-[20px] object-contain"
+                  />
                 </div>
 
                 <CreateStudySetSection variant={experiment} />

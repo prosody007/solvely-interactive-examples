@@ -3,10 +3,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 import type { CSSProperties } from "react";
-import { DemoCanvas } from "./demo-canvas";
+import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { MeIcon, ScanIcon, StudyIcon } from "./tabbar-preview";
 
-export type StudyExperimentVariant = "experiment-1" | "experiment-2";
+export type StudyExperimentVariant =
+  | "experiment-1"
+  | "experiment-1-no-image"
+  | "experiment-2"
+  | "experiment-2-no-image";
 
 const BLUE = "#007AFF";
 const BG = "#F6F8FA";
@@ -297,10 +301,12 @@ function FloatingUpload() {
 function FinalStackCard({
   className,
   imageSrc,
+  noImage = false,
   style,
 }: {
   className: string;
   imageSrc: string;
+  noImage?: boolean;
   style?: CSSProperties;
 }) {
   return (
@@ -312,23 +318,53 @@ function FinalStackCard({
         ...style,
       }}
     >
-      <div className="flex min-h-0 flex-1 w-full flex-col items-center justify-center gap-[16px]">
-        <div className="h-[120px] w-full shrink-0 rounded-[12px]">
-          <img
-            src={imageSrc}
-            alt=""
-            draggable={false}
-            className="h-full w-full rounded-[12px] object-cover"
-          />
+      {noImage ? (
+        <div className="flex w-full flex-col items-center justify-center gap-[16px]">
+          <div className="flex h-[200px] w-full items-center justify-center text-center text-[12px] font-semibold leading-[1.3] text-[#111111]">
+            Reduction means gaining or losing electrons?
+          </div>
+          <div className="flex h-[24px] w-full shrink-0 items-center justify-center text-[10px] font-bold leading-[10px] text-[#007AFF]">
+            Tap to reveal
+          </div>
         </div>
-        <div className="flex min-h-0 flex-1 items-start justify-center text-center text-[12px] font-semibold leading-[1.3] text-[#111111]">
-          Reduction means gaining or losing electrons?
+      ) : (
+        <div className="flex min-h-0 flex-1 w-full flex-col items-center justify-center gap-[16px]">
+          <div className="h-[120px] w-full shrink-0 rounded-[12px]">
+            <img
+              src={imageSrc}
+              alt=""
+              draggable={false}
+              className="h-full w-full rounded-[12px] object-cover"
+            />
+          </div>
+          <div className="flex min-h-0 flex-1 items-start justify-center text-center text-[12px] font-semibold leading-[1.3] text-[#111111]">
+            Reduction means gaining or losing electrons?
+          </div>
+          <div className="flex h-[24px] shrink-0 items-center justify-center text-[10px] font-bold leading-[10px] text-[#007AFF]">
+            Tap to reveal
+          </div>
         </div>
-        <div className="flex h-[24px] shrink-0 items-center justify-center text-[10px] font-bold leading-[10px] text-[#007AFF]">
-          Tap to reveal
-        </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+function FinalBlankStackCard({
+  className,
+  style,
+}: {
+  className: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <div
+      className={`${className} rounded-[20px] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.16)]`}
+      style={{
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        ...style,
+      }}
+    />
   );
 }
 
@@ -377,7 +413,7 @@ function StudyTopicBubble({
   );
 }
 
-function PreparingProgressGraphic() {
+function PreparingProgressGraphic({ noImage }: { noImage: boolean }) {
   return (
     <div className="flex w-full items-center justify-center py-[24px]">
       <div className="relative h-[260px] w-[190px]">
@@ -453,7 +489,7 @@ function PreparingProgressGraphic() {
             }
             to {
               visibility: visible;
-              transform: translate(calc(-50% - 61px), calc(-50% - 13px)) rotate(-26deg) scale(1);
+              transform: translate(calc(-50% - 34px), calc(-50% + 10px)) rotate(-6.5deg) scale(1);
             }
           }
 
@@ -464,7 +500,7 @@ function PreparingProgressGraphic() {
             }
             to {
               visibility: visible;
-              transform: translate(calc(-50% + 60px), calc(-50% - 13px)) rotate(26deg) scale(1);
+              transform: translate(calc(-50% + 34px), calc(-50% + 10px)) rotate(6.5deg) scale(1);
             }
           }
 
@@ -543,9 +579,8 @@ function PreparingProgressGraphic() {
                 >
                   {isFinalCard ? (
                     <>
-                      <FinalStackCard
+                      <FinalBlankStackCard
                         className="invisible absolute left-1/2 top-1/2 h-[240px] w-[160px]"
-                        imageSrc={`${ASSET}/final-back-card-left.png`}
                         style={{
                           animationName: "study-back-card-left-enter",
                           animationDuration: `${FINAL_BACK_CARD_DURATION_MS}ms`,
@@ -555,9 +590,8 @@ function PreparingProgressGraphic() {
                           zIndex: 1,
                         }}
                       />
-                      <FinalStackCard
+                      <FinalBlankStackCard
                         className="invisible absolute left-1/2 top-1/2 h-[240px] w-[160px]"
-                        imageSrc={`${ASSET}/final-back-card-right.png`}
                         style={{
                           animationName: "study-back-card-right-enter",
                           animationDuration: `${FINAL_BACK_CARD_DURATION_MS}ms`,
@@ -610,6 +644,7 @@ function PreparingProgressGraphic() {
                       <FinalStackCard
                         className="absolute inset-0 h-[260px] w-[200px]"
                         imageSrc={`${ASSET}/final-front-card.png`}
+                        noImage={noImage}
                         style={{
                           backfaceVisibility: "hidden",
                           WebkitBackfaceVisibility: "hidden",
@@ -667,8 +702,9 @@ function PreparingBottomSheet({
 }: {
   experiment?: StudyExperimentVariant;
 }) {
+  const noImage = experiment.endsWith("-no-image");
   const finalHint =
-    experiment === "experiment-2"
+    experiment.startsWith("experiment-2")
       ? "Generated for you . from topics you ask about most"
       : "Generated for you · powered by 10M+ student insights";
 
@@ -748,7 +784,7 @@ function PreparingBottomSheet({
               animation: `study-progress-stage-move 520ms cubic-bezier(0.32, 0.72, 0, 1) ${FINAL_SHEET_REVEAL_START_MS}ms forwards`,
             }}
           >
-            <PreparingProgressGraphic />
+            <PreparingProgressGraphic noImage={noImage} />
           </div>
 
           <div className="absolute left-0 top-0 flex w-full flex-col items-start px-[20px]">
@@ -792,7 +828,7 @@ function PreparingBottomSheet({
               type="button"
               className="flex h-[52px] w-full items-center justify-center rounded-full border-0 bg-[#007AFF] font-[var(--font-poppins)] text-[16px] font-semibold leading-[1.5] text-white"
             >
-              Start Flashcards
+              View Flashcards
             </button>
           </div>
           <div className="flex w-full items-center justify-center py-[8px]">

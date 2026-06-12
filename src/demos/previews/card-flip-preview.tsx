@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { DemoCanvas } from "./demo-canvas";
+import { DemoCanvas } from "@/components/simulator/demo-canvas";
 
 /* ----------------------------------------------------------------
  *  CardExpandPreview · 卡片展开

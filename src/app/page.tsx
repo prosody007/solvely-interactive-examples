@@ -4,130 +4,30 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import { HomePreview } from "@/components/preview/home-preview";
-import {
-  HomeV2Preview,
-  type HomeExperimentVariant,
-} from "@/components/preview/home-v2-preview";
-import {
-  StudyPreview,
-  type StudyExperimentVariant,
-} from "@/components/preview/study-preview";
-import { TutorPreview } from "@/components/preview/tutor-preview";
+import { HomePreview } from "@/demos/previews/home-preview";
+import { HomeV2Preview } from "@/demos/previews/home-v2-preview";
+import { StudyPreview } from "@/demos/previews/study-preview";
+import { TutorPreview } from "@/demos/previews/tutor-preview";
 import {
   FlashCardFlipSwipeAwayPreview,
   FlashCardTransitionPreview,
-} from "@/components/preview/card-flip-preview";
+} from "@/demos/previews/card-flip-preview";
+import {
+  NAV_GROUPS,
+  getActiveScreen,
+  isHomeExperiment,
+  isStudyExperiment,
+  screenByKey,
+  type HomeExperiment,
+  type ScreenKey,
+  type StudyExperiment,
+} from "@/demos/registry";
 
-type ScreenKey =
-  | "home"
-  | "solve"
-  | "study"
-  | "onboarding"
-  | "tutor"
-  | "flash-card-stack"
-  | "flash-card-flip-swipe-away"
-  | "paywall"
-  | "practice-game";
-
-type StudyExperiment = StudyExperimentVariant;
-type HomeExperiment = HomeExperimentVariant;
-
-const SCREENS: {
-  key: ScreenKey;
-  title: string;
-  href: string;
-}[] = [
-  {
-    key: "home",
-    title: "Home",
-    href: "/home",
-  },
-  {
-    key: "solve",
-    title: "Solve",
-    href: "/solve",
-  },
-  {
-    key: "study",
-    title: "Study",
-    href: "/study",
-  },
-  {
-    key: "onboarding",
-    title: "Onboarding",
-    href: "/onboarding",
-  },
-  {
-    key: "tutor",
-    title: "Tutor",
-    href: "/tutor",
-  },
-  {
-    key: "flash-card-stack",
-    title: "Flash Card Stack",
-    href: "/flash-card-stack",
-  },
-  {
-    key: "flash-card-flip-swipe-away",
-    title: "Flash Card Flip Swipe Away",
-    href: "/flash-card-flip-swipe-away",
-  },
-  {
-    key: "paywall",
-    title: "Paywall",
-    href: "/paywall",
-  },
-  {
-    key: "practice-game",
-    title: "PRACTICE game",
-    href: "/practice-game",
-  },
-];
-
-const NAV_GROUPS: {
-  label: string;
-  keys: ScreenKey[];
-}[] = [
-  {
-    label: "Solvely",
-    keys: [
-      "home",
-      "solve",
-      "study",
-      "tutor",
-      "flash-card-stack",
-      "flash-card-flip-swipe-away",
-      "practice-game",
-    ],
-  },
-  {
-    label: "商业化",
-    keys: ["onboarding", "paywall"],
-  },
-];
-
-const screenByKey = Object.fromEntries(
-  SCREENS.map((screen) => [screen.key, screen]),
-) as Record<ScreenKey, (typeof SCREENS)[number]>;
-
-function getActiveScreen(pathname: string): (typeof SCREENS)[number] {
-  return SCREENS.find((screen) => screen.href === pathname) ?? SCREENS[0];
-}
-
-function isHomeExperiment(value: string | null): value is HomeExperiment {
-  return value === "version-1" || value === "version-2";
-}
-
-function isStudyExperiment(value: string | null): value is StudyExperiment {
-  return value === "experiment-1" || value === "experiment-2";
-}
 
 const PHONE_DROP_SHADOW =
   "drop-shadow(20px 20px 60px rgba(251, 233, 217, 0.7)) drop-shadow(140px 100px 240px rgba(28, 19, 14, 0.4))";
@@ -1237,6 +1137,7 @@ function AutoScaledPhoneFrame({ children }: { children: ReactNode }) {
   );
 }
 
+
 function ExperimentSwitch<T extends string>({
   value,
   onChange,
@@ -1244,10 +1145,8 @@ function ExperimentSwitch<T extends string>({
 }: {
   value: T;
   onChange: (value: T) => void;
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; subOptions?: { value: T; label: string }[] }[];
 }) {
-  const activeIndex = options.findIndex((option) => option.value === value);
-
   return (
     <div className="pointer-events-auto fixed right-3 top-1/2 z-30 flex min-h-0 w-[112px] -translate-y-1/2 items-center justify-end sm:right-5 sm:w-[160px] xl:right-[40px] xl:w-[260px]">
       <ul
@@ -1256,44 +1155,105 @@ function ExperimentSwitch<T extends string>({
           zIndex: 30,
         }}
       >
-        {options.map((option, i) => {
-          const active = i === activeIndex;
+        {options.map((option) => {
+          const hasSubOptions = Boolean(option.subOptions?.length);
+          const active =
+            option.value === value ||
+            option.subOptions?.some((subOption) => subOption.value === value);
         return (
-          <li key={option.value} className="block">
-            <button
-              type="button"
-              onClick={() => onChange(option.value)}
-              className="flex items-center bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
-              style={{
-                fontFamily:
-                  "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
-                fontSize: 14,
-                lineHeight: 1.5,
-                fontWeight: 500,
-                color: active
-                  ? STUDY_EXPERIMENT_ACTIVE_COLOR
-                  : STUDY_EXPERIMENT_INACTIVE_COLOR,
-              }}
-            >
-              <span
-                aria-hidden="true"
-                className="hidden xl:block"
+          <li key={option.value} className="flex flex-col items-end gap-2">
+            {hasSubOptions ? (
+              <div
+                className="flex items-center text-right"
                 style={{
-                  width: STUDY_EXPERIMENT_INDICATOR_W,
-                  height: STUDY_EXPERIMENT_INDICATOR_H,
-                  marginRight: STUDY_EXPERIMENT_INDICATOR_GAP,
-                  background: STUDY_EXPERIMENT_ACTIVE_COLOR,
-                  opacity: active ? 1 : 0,
-                  transform: active ? "scaleX(1)" : "scaleX(0)",
-                  transformOrigin: "right center",
-                  transition: [
-                    `transform 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
-                    active ? "opacity 80ms linear" : "opacity 0ms linear 320ms",
-                  ].join(", "),
+                  fontFamily:
+                    "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+                  fontSize: 14,
+                  lineHeight: 1.5,
+                  fontWeight: 500,
+                  color: active
+                    ? STUDY_EXPERIMENT_ACTIVE_COLOR
+                    : STUDY_EXPERIMENT_INACTIVE_COLOR,
                 }}
-              />
-              <span>{option.label}</span>
-            </button>
+              >
+                <span
+                  aria-hidden="true"
+                  className="hidden xl:block"
+                  style={{
+                    width: STUDY_EXPERIMENT_INDICATOR_W,
+                    height: STUDY_EXPERIMENT_INDICATOR_H,
+                    marginRight: STUDY_EXPERIMENT_INDICATOR_GAP,
+                    background: STUDY_EXPERIMENT_ACTIVE_COLOR,
+                    opacity: active ? 1 : 0,
+                    transform: active ? "scaleX(1)" : "scaleX(0)",
+                    transformOrigin: "right center",
+                    transition: [
+                      `transform 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
+                      active ? "opacity 80ms linear" : "opacity 0ms linear 320ms",
+                    ].join(", "),
+                  }}
+                />
+                <span>{option.label}</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onChange(option.value)}
+                className="flex items-center bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
+                style={{
+                  fontFamily:
+                    "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+                  fontSize: 14,
+                  lineHeight: 1.5,
+                  fontWeight: 500,
+                  color: active
+                    ? STUDY_EXPERIMENT_ACTIVE_COLOR
+                    : STUDY_EXPERIMENT_INACTIVE_COLOR,
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  className="hidden xl:block"
+                  style={{
+                    width: STUDY_EXPERIMENT_INDICATOR_W,
+                    height: STUDY_EXPERIMENT_INDICATOR_H,
+                    marginRight: STUDY_EXPERIMENT_INDICATOR_GAP,
+                    background: STUDY_EXPERIMENT_ACTIVE_COLOR,
+                    opacity: active ? 1 : 0,
+                    transform: active ? "scaleX(1)" : "scaleX(0)",
+                    transformOrigin: "right center",
+                    transition: [
+                      `transform 320ms ${STUDY_EXPERIMENT_INDICATOR_EASE}`,
+                      active ? "opacity 80ms linear" : "opacity 0ms linear 320ms",
+                    ].join(", "),
+                  }}
+                />
+                <span>{option.label}</span>
+              </button>
+            )}
+            {option.subOptions?.map((subOption) => {
+              const subActive = subOption.value === value;
+              return (
+                <button
+                  key={subOption.value}
+                  type="button"
+                  onClick={() => onChange(subOption.value)}
+                  className="bg-transparent border-none p-0 text-right cursor-pointer transition-colors"
+                  style={{
+                    fontFamily:
+                      "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+                    fontSize: 12,
+                    lineHeight: 1.5,
+                    fontWeight: 500,
+                    color: subActive
+                      ? STUDY_EXPERIMENT_ACTIVE_COLOR
+                      : STUDY_EXPERIMENT_INACTIVE_COLOR,
+                  }}
+                >
+                  {subOption.label}
+                </button>
+              );
+            })}
           </li>
         );
         })}
@@ -1333,8 +1293,22 @@ function SimulatorPreview({
           value={studyExperiment}
           onChange={onStudyExperimentChange}
           options={[
-            { value: "experiment-1", label: "实验组1" },
-            { value: "experiment-2", label: "实验组2" },
+            {
+              value: "experiment-1",
+              label: "实验组一",
+              subOptions: [
+                { value: "experiment-1", label: "有图" },
+                { value: "experiment-1-no-image", label: "无图" },
+              ],
+            },
+            {
+              value: "experiment-2",
+              label: "实验组二",
+              subOptions: [
+                { value: "experiment-2", label: "有图" },
+                { value: "experiment-2-no-image", label: "无图" },
+              ],
+            },
           ]}
         />
       ) : null}
@@ -1379,24 +1353,16 @@ export default function Home() {
   const router = useRouter();
   const activeScreen = getActiveScreen(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [homeExperiment, setHomeExperiment] =
-    useState<HomeExperiment>("version-1");
-  const [studyExperiment, setStudyExperiment] =
-    useState<StudyExperiment>("experiment-1");
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const version = params.get("version");
-    const experiment = params.get("experiment");
-
-    if (isHomeExperiment(version)) {
-      setHomeExperiment(version);
-    }
-
-    if (isStudyExperiment(experiment)) {
-      setStudyExperiment(experiment);
-    }
-  }, [pathname]);
+  const [homeExperiment, setHomeExperiment] = useState<HomeExperiment>(() => {
+    if (typeof window === "undefined") return "version-1";
+    const version = new URLSearchParams(window.location.search).get("version");
+    return isHomeExperiment(version) ? version : "version-1";
+  });
+  const [studyExperiment, setStudyExperiment] = useState<StudyExperiment>(() => {
+    if (typeof window === "undefined") return "experiment-1";
+    const experiment = new URLSearchParams(window.location.search).get("experiment");
+    return isStudyExperiment(experiment) ? experiment : "experiment-1";
+  });
 
   const updateQueryParam = (key: string, value: string) => {
     const params = new URLSearchParams(window.location.search);

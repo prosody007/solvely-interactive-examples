@@ -8,7 +8,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { DemoCanvas } from "./demo-canvas";
+import { DemoCanvas } from "@/components/simulator/demo-canvas";
 
 /**
  * Tutor 实例页（1:1 还原 Figma 1743:24075，393×852 设计稿）
@@ -47,23 +47,16 @@ type HistorySection = {
 
 const TUTOR_CAROUSEL_CARDS: TutorCarouselCard[] = [
   {
-    id: "plant",
-    question: "Why is this plant growing linearly?",
-    tagText: "Biology",
-    tagBg: "#EAF4F9",
-    tagColor: "#0B99BC",
+    id: "geometry",
+    question: "Why do parallel lines create equal angles?",
+    tagText: "Geometry",
+    tagBg: "#ECF5FF",
+    tagColor: "#007AFF",
   },
   {
     id: "rollercoaster",
     question: "Why doesn't a roller coaster loop fall?",
     tagText: "Algebra",
-    tagBg: "#ECF5FF",
-    tagColor: "#007AFF",
-  },
-  {
-    id: "grease",
-    question: "How does soap actually break down grease?",
-    tagText: "Chemistry",
     tagBg: "#ECF5ED",
     tagColor: "#33A354",
   },
@@ -71,22 +64,22 @@ const TUTOR_CAROUSEL_CARDS: TutorCarouselCard[] = [
     id: "gravity",
     question: "Why do astronauts float inside spacecraft?",
     tagText: "Physics",
-    tagBg: "#F0ECFF",
-    tagColor: "#6E42D7",
+    tagBg: "#EAF4F9",
+    tagColor: "#0B99BC",
   },
   {
-    id: "fractions",
-    question: "How do fractions turn into decimals?",
-    tagText: "Math",
-    tagBg: "#FFF2E5",
-    tagColor: "#D46B08",
+    id: "plant",
+    question: "Why is this plant growing linearly?",
+    tagText: "Biology",
+    tagBg: "#FFF4EA",
+    tagColor: "#FF9216",
   },
   {
-    id: "photosynthesis",
-    question: "Why do seasons change throughout the year?",
-    tagText: "Earth Science",
-    tagBg: "#EAF7F0",
-    tagColor: "#1E8E5A",
+    id: "history",
+    question: "Why did this event change society?",
+    tagText: "History",
+    tagBg: "#FCEFF0",
+    tagColor: "#E15C6C",
   },
 ];
 
@@ -579,7 +572,7 @@ export function TutorPreview() {
         >
           <TutorHero />
 
-          {/* 推荐卡片 carousel — 6 张卡组成无限圆环轮播 */}
+          {/* 推荐卡片 carousel */}
           <TutorRingCarousel
             activeIndex={activeIndex}
             setActiveIndex={setActiveIndex}
@@ -1154,6 +1147,24 @@ function TutorCarouselCardView({ card }: { card: TutorCarouselCard }) {
 }
 
 function SubjectIcon({ subject, color }: { subject: string; color: string }) {
+  const assetSubject = subject.toLowerCase();
+  if (
+    assetSubject === "geometry" ||
+    assetSubject === "algebra" ||
+    assetSubject === "physics" ||
+    assetSubject === "history" ||
+    assetSubject === "biology"
+  ) {
+    return (
+      <img
+        src={`/figma/tutor/subject-icons/${assetSubject}@3x.png`}
+        alt=""
+        draggable={false}
+        className="h-[40px] w-[40px]"
+      />
+    );
+  }
+
   const iconProps = {
     width: 40,
     height: 40,
@@ -1164,10 +1175,39 @@ function SubjectIcon({ subject, color }: { subject: string; color: string }) {
   } as const;
   const strokeProps = {
     stroke: color,
-    strokeWidth: 10,
+    strokeWidth: 7.5,
     strokeLinecap: "round",
     strokeLinejoin: "round",
   } as const;
+
+  if (subject === "Geometry") {
+    return (
+      <svg {...iconProps}>
+        <circle
+          cx="60"
+          cy="44"
+          r="18"
+          {...strokeProps}
+        />
+        <path
+          d="M60 18V28"
+          {...strokeProps}
+        />
+        <path
+          d="M50 60L24 102"
+          {...strokeProps}
+        />
+        <path
+          d="M70 60L96 102"
+          {...strokeProps}
+        />
+        <path
+          d="M36 75C52 84 72 84 88 75C97 68 102 57 102 44"
+          {...strokeProps}
+        />
+      </svg>
+    );
+  }
 
   if (subject === "Biology") {
     return (
@@ -1225,28 +1265,41 @@ function SubjectIcon({ subject, color }: { subject: string; color: string }) {
         <ellipse
           cx="60"
           cy="60"
-          rx="45"
+          rx="48"
           ry="18"
           stroke={color}
-          strokeWidth="8"
+          strokeWidth="7.5"
+          transform="rotate(45 60 60)"
         />
         <ellipse
           cx="60"
           cy="60"
-          rx="45"
+          rx="48"
           ry="18"
           stroke={color}
-          strokeWidth="8"
-          transform="rotate(60 60 60)"
+          strokeWidth="7.5"
+          transform="rotate(-45 60 60)"
         />
-        <ellipse
-          cx="60"
-          cy="60"
-          rx="45"
-          ry="18"
+      </svg>
+    );
+  }
+
+  if (subject === "History") {
+    return (
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden>
+        <path
+          d="M8 7.5H15.5C17.8 7.5 19.2 8.2 20 9.2C20.8 8.2 22.2 7.5 24.5 7.5H32C34.2 7.5 36 9.3 36 11.5V27.5C36 29.7 34.2 31.5 32 31.5H25.8C24.3 31.5 22.8 31.9 21.6 32.8L20 34L18.4 32.8C17.2 31.9 15.7 31.5 14.2 31.5H8C5.8 31.5 4 29.7 4 27.5V11.5C4 9.3 5.8 7.5 8 7.5Z"
           stroke={color}
-          strokeWidth="8"
-          transform="rotate(120 60 60)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M20 9.2V34M11 16H16M12 21H16"
+          stroke={color}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     );
@@ -1459,7 +1512,7 @@ function TutorLoadingScreen({
           ))}
         </div>
       </div>
-      <LoadingQuestionCard top={531} />
+      <LoadingQuestionCard top={459} />
       <HomeIndicator />
     </div>
   );

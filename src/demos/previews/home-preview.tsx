@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ScanIcon, StudyIcon, MeIcon } from "./tabbar-preview";
-import { DemoCanvas } from "./demo-canvas";
+import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { useDisplayDevice } from "@/components/device-context";
 
 const HOME_INDICATOR_H = 34;
