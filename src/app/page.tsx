@@ -929,7 +929,7 @@ function AppNavList({
 function AppSidebar({ activeKey }: { activeKey: ScreenKey }) {
   return (
     <aside className="sticky top-16 hidden h-[calc(100svh-4rem)] w-[304px] shrink-0 border-r border-[rgba(5,5,5,0.06)] bg-white lg:block">
-      <div className="docs-sidebar-scrollbar h-full overflow-y-auto px-4 py-4">
+      <div className="docs-sidebar-scrollbar h-full overflow-y-auto px-4 pb-4 pt-10">
         <AppNavList activeKey={activeKey} />
       </div>
     </aside>
@@ -1049,12 +1049,12 @@ function AutoScaledPhoneFrame({ children }: { children: ReactNode }) {
       );
       const boostedScale = Math.min(1, nextScale * preset.SCALE_BOOST);
       const resolvedScale = Number.isFinite(boostedScale)
-        ? Math.max(0, boostedScale)
+        ? Math.round(Math.max(0, boostedScale) * 1000) / 1000
         : 1;
 
       cachedPhoneScale = resolvedScale;
       setScaleState((prev) => {
-        if (prev.ready && Math.abs(prev.scale - resolvedScale) < 0.0005) {
+        if (prev.ready && prev.scale === resolvedScale) {
           return prev;
         }
         return { scale: resolvedScale, ready: true };
@@ -1066,13 +1066,10 @@ function AutoScaledPhoneFrame({ children }: { children: ReactNode }) {
       rafId = window.requestAnimationFrame(updateScale);
     };
 
-    const observer = new ResizeObserver(scheduleUpdate);
-    observer.observe(viewport);
     updateScale();
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
-      observer.disconnect();
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", scheduleUpdate);
     };
@@ -1319,6 +1316,7 @@ function SimulatorPreview({
           options={[
             { value: "version-1", label: "版本一" },
             { value: "version-2", label: "版本二" },
+            { value: "version-3", label: "版本三" },
           ]}
         />
       ) : null}
@@ -1353,16 +1351,21 @@ export default function Home() {
   const router = useRouter();
   const activeScreen = getActiveScreen(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [homeExperiment, setHomeExperiment] = useState<HomeExperiment>(() => {
-    if (typeof window === "undefined") return "version-1";
-    const version = new URLSearchParams(window.location.search).get("version");
-    return isHomeExperiment(version) ? version : "version-1";
-  });
-  const [studyExperiment, setStudyExperiment] = useState<StudyExperiment>(() => {
-    if (typeof window === "undefined") return "experiment-1";
-    const experiment = new URLSearchParams(window.location.search).get("experiment");
-    return isStudyExperiment(experiment) ? experiment : "experiment-1";
-  });
+  const [homeExperiment, setHomeExperiment] = useState<HomeExperiment>("version-1");
+  const [studyExperiment, setStudyExperiment] =
+    useState<StudyExperiment>("experiment-1");
+
+  useLayoutEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const version = params.get("version");
+    const experiment = params.get("experiment");
+    const frameId = window.requestAnimationFrame(() => {
+      if (isHomeExperiment(version)) setHomeExperiment(version);
+      if (isStudyExperiment(experiment)) setStudyExperiment(experiment);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   const updateQueryParam = (key: string, value: string) => {
     const params = new URLSearchParams(window.location.search);

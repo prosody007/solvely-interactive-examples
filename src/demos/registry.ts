@@ -70,7 +70,7 @@ export function getActiveScreen(pathname: string): (typeof SCREENS)[number] {
 }
 
 export function isHomeExperiment(value: string | null): value is HomeExperiment {
-  return value === "version-1" || value === "version-2";
+  return value === "version-1" || value === "version-2" || value === "version-3";
 }
 
 export function isStudyExperiment(

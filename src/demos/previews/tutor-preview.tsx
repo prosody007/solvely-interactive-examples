@@ -1156,6 +1156,7 @@ function SubjectIcon({ subject, color }: { subject: string; color: string }) {
     assetSubject === "biology"
   ) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={`/figma/tutor/subject-icons/${assetSubject}@3x.png`}
         alt=""
@@ -1688,7 +1689,6 @@ function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
       <HomeIndicator />
       {ratingSheetVisible ? (
         <RatingBottomSheet
-          onClose={() => setRatingSheetVisible(false)}
           onSubmit={onBack}
         />
       ) : null}
@@ -1696,13 +1696,7 @@ function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-function RatingBottomSheet({
-  onClose,
-  onSubmit,
-}: {
-  onClose: () => void;
-  onSubmit: () => void;
-}) {
+function RatingBottomSheet({ onSubmit }: { onSubmit: () => void }) {
   const [rating, setRating] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [tappedStar, setTappedStar] = useState<number | null>(null);
@@ -2809,46 +2803,6 @@ function TypewriterTwoLineText({ text, paused }: { text: string; paused: boolean
   );
 }
 
-function PauseIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="6" y="4" width="3" height="16" rx="1.5" fill="#111111" />
-      <rect x="15" y="4" width="3" height="16" rx="1.5" fill="#111111" />
-    </svg>
-  );
-}
-
-function MicSmallIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 14.5C14.2 14.5 16 12.7 16 10.5V6.5C16 4.3 14.2 2.5 12 2.5C9.8 2.5 8 4.3 8 6.5V10.5C8 12.7 9.8 14.5 12 14.5Z"
-        fill="#007AFF"
-      />
-      <path
-        d="M5.5 10.5C5.5 14.1 8.4 17 12 17M12 17C15.6 17 18.5 14.1 18.5 10.5M12 17V21"
-        stroke="#007AFF"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function KeyboardMiniIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3" y="6" width="18" height="12" rx="3" stroke="#111111" strokeWidth="2" />
-      <path
-        d="M7 10H7.01M11 10H11.01M15 10H15.01M17 14H7"
-        stroke="#111111"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function TutorLoadingHeader({ onBack }: { onBack: () => void }) {
   return (
     <div
@@ -3520,25 +3474,6 @@ function TutorAvatar() {
   );
 }
 
-function BackArrowIcon() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/figma/tutor/tutor-history-back.png"
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-      style={{
-        width: 24,
-        height: 24,
-        display: "block",
-        pointerEvents: "none",
-        userSelect: "none",
-      }}
-    />
-  );
-}
-
 function HomeIndicator() {
   return (
     <div
@@ -3678,74 +3613,6 @@ function TutorBottomNavItem({
         {item.label}
       </span>
     </button>
-  );
-}
-
-function SignalIcon() {
-  return (
-    <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden>
-      {[3, 6, 9, 12].map((h, i) => (
-        <rect
-          key={i}
-          x={i * 4}
-          y={12 - h}
-          width="3"
-          height={h}
-          rx="0.6"
-          fill="#111"
-        />
-      ))}
-    </svg>
-  );
-}
-
-function WifiIcon() {
-  return (
-    <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden>
-      <path
-        d="M9 11.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"
-        fill="#111"
-      />
-      <path
-        d="M3.6 6.5C5.2 5 7 4.2 9 4.2s3.8.8 5.4 2.3"
-        stroke="#111"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M0.8 3.7C3 1.7 5.9 0.6 9 0.6c3.1 0 6 1.1 8.2 3.1"
-        stroke="#111"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-function BatteryIcon() {
-  return (
-    <svg width="26" height="12" viewBox="0 0 26 12" fill="none" aria-hidden>
-      <rect
-        x="0.5"
-        y="0.5"
-        width="22"
-        height="11"
-        rx="2.5"
-        stroke="rgba(0,0,0,0.35)"
-        fill="none"
-      />
-      <rect x="2" y="2" width="19" height="8" rx="1.5" fill="#111" />
-      <rect
-        x="23.5"
-        y="3.5"
-        width="2"
-        height="5"
-        rx="1"
-        fill="rgba(0,0,0,0.35)"
-      />
-    </svg>
   );
 }
 
@@ -4042,151 +3909,3 @@ function PressableImageButton({
   );
 }
 
-function KeyboardIcon() {
-  return (
-    <svg width="22" height="18" viewBox="0 0 22 18" fill="none" aria-hidden>
-      <rect
-        x="1"
-        y="2"
-        width="20"
-        height="14"
-        rx="2.5"
-        stroke="#111"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      <rect x="4" y="6" width="2" height="2" rx="0.5" fill="#111" />
-      <rect x="8" y="6" width="2" height="2" rx="0.5" fill="#111" />
-      <rect x="12" y="6" width="2" height="2" rx="0.5" fill="#111" />
-      <rect x="16" y="6" width="2" height="2" rx="0.5" fill="#111" />
-      <rect x="6" y="11" width="10" height="2" rx="0.5" fill="#111" />
-    </svg>
-  );
-}
-
-function CameraIcon() {
-  return (
-    <svg width="22" height="20" viewBox="0 0 22 20" fill="none" aria-hidden>
-      <path
-        d="M3 6.5h2.6L7 4h8l1.4 2.5H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18.5H3A1.5 1.5 0 0 1 1.5 17V8A1.5 1.5 0 0 1 3 6.5Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle
-        cx="11"
-        cy="12"
-        r="3.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-function MicIcon() {
-  return (
-    <svg width="16" height="22" viewBox="0 0 16 22" fill="none" aria-hidden>
-      <rect
-        x="5"
-        y="1.5"
-        width="6"
-        height="11"
-        rx="3"
-        stroke="#111"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      <path
-        d="M2 10v.5a6 6 0 0 0 12 0V10"
-        stroke="#111"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <line
-        x1="8"
-        y1="17"
-        x2="8"
-        y2="20.5"
-        stroke="#111"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/* Tab icons */
-function TabScanIcon({ active }: { active: boolean }) {
-  const c = active ? "#0A6CF4" : "#9A9DA1";
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <path
-        d="M3 6.5h2L6 4.5h10l1 2h2A1.5 1.5 0 0 1 20.5 8v9.5A1.5 1.5 0 0 1 19 19H3a1.5 1.5 0 0 1-1.5-1.5V8A1.5 1.5 0 0 1 3 6.5Z"
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="11" cy="12.5" r="3.4" stroke={c} strokeWidth="1.6" fill="none" />
-    </svg>
-  );
-}
-
-function TabLectureIcon({ active }: { active: boolean }) {
-  const c = active ? "#0A6CF4" : "#9A9DA1";
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <rect x="7.5" y="2.5" width="7" height="11" rx="3.5" stroke={c} strokeWidth="1.6" fill="none" />
-      <path
-        d="M4 11v.5a7 7 0 0 0 14 0V11"
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <line x1="11" y1="18.5" x2="11" y2="20" stroke={c} strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function TabStudyIcon({ active }: { active: boolean }) {
-  const c = active ? "#0A6CF4" : "#9A9DA1";
-  if (active) {
-    return (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-        <path
-          d="M5 3.5h12V18a1.5 1.5 0 0 1-2.6 1L11 16l-3.4 3a1.5 1.5 0 0 1-2.6-1V3.5Z"
-          fill={c}
-        />
-        <path d="M9 9.5h4M11 7.5v4" stroke="#FFF" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <path
-        d="M5 3.5h12V18a1.5 1.5 0 0 1-2.6 1L11 16l-3.4 3a1.5 1.5 0 0 1-2.6-1V3.5Z"
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path d="M9 9.5h4M11 7.5v4" stroke={c} strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function TabMeIcon({ active }: { active: boolean }) {
-  const c = active ? "#0A6CF4" : "#9A9DA1";
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <circle cx="11" cy="11" r="8.5" stroke={c} strokeWidth="1.6" fill="none" />
-      <circle cx="8.4" cy="9.6" r="0.9" fill={c} />
-      <circle cx="13.6" cy="9.6" r="0.9" fill={c} />
-    </svg>
-  );
-}

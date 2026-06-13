@@ -5,7 +5,6 @@ import { ScanIcon, StudyIcon, MeIcon } from "./tabbar-preview";
 import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { useDisplayDevice } from "@/components/device-context";
 
-const HOME_INDICATOR_H = 34;
 const CAPTURE_MODE_PANEL_H = 160;
 
 const TAB_ACTIVE = "#007AFF";
@@ -676,7 +675,6 @@ const POPOVER_ARROW_W = 56;
 const POPOVER_ARROW_H = 13;
 const POPOVER_SEGMENT_GAP = 8;
 const POPOVER_BG = "#F0F1F4";
-const POPOVER_SHADOW = "0px 20px 50px rgba(0, 0, 0, 0.3)";
 function CapturePopover({
   guidedCenter,
   containerWidth,

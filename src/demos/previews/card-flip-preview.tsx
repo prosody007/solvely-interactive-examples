@@ -632,7 +632,6 @@ const FLASH_STACK_CARD_W = 321;
 const FLASH_STACK_CARD_H = 440;
 const FLASH_STACK_CARD_GAP = 16;
 const FLASH_STACK_REVEAL_GAP = 10;
-const FLASH_STACK_BACK_IMAGE_SRC = "/figma/card-flip/flash-stack-back.png";
 const FLASH_STACK_DURATION = 360;
 const FLASH_STACK_PANEL_RESIZE_DURATION = 200;
 const FLASH_STACK_SETTLEMENT_ITEM_DURATION = 220;
@@ -998,53 +997,6 @@ function FlashStackSettlementCard({
           </span>
         </button>
       </div>
-    </div>
-  );
-}
-
-function FlashStackBackCard({
-  slot,
-  zIndex,
-  transition,
-  opacity = 1,
-}: {
-  slot: { left: number; top: number; scale: number };
-  zIndex: number;
-  transition?: string;
-  opacity?: number;
-}) {
-  return (
-    <div
-      aria-hidden
-      className="absolute overflow-hidden"
-      style={{
-        left: slot.left,
-        top: slot.top,
-        width: FLASH_STACK_CARD_W,
-        height: FLASH_STACK_CARD_H,
-        zIndex,
-        borderRadius: 20,
-        boxShadow: "0 8px 16px rgba(0,0,0,0.08)",
-        transition,
-        opacity,
-        transform: `scale(${slot.scale})`,
-        transformOrigin: "top left",
-      }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={FLASH_STACK_BACK_IMAGE_SRC}
-        alt=""
-        draggable={false}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          display: "block",
-          pointerEvents: "none",
-          userSelect: "none",
-        }}
-      />
     </div>
   );
 }
