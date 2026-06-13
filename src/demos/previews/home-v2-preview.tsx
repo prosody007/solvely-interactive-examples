@@ -857,6 +857,9 @@ function VersionThreeBottomBarContent({
         <div
           className="relative flex h-[62px] w-[243px] shrink-0 items-center overflow-hidden rounded-[100px] p-[4px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
           style={{
+            background: activeIsSolve ? "rgba(0, 0, 0, 0.3)" : undefined,
+            backdropFilter: activeIsSolve ? "blur(6px)" : undefined,
+            WebkitBackdropFilter: activeIsSolve ? "blur(6px)" : undefined,
             opacity: uploadOpen ? 0 : 1,
             transform: activeIsSolve
               ? "translate3d(51px, 0, 0)"
@@ -868,7 +871,12 @@ function VersionThreeBottomBarContent({
         >
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[100px]">
             {activeIsSolve ? (
-              <div className="absolute inset-0 rounded-[100px] bg-black/30 backdrop-blur-[6px]" />
+              <div
+                className="absolute inset-0 rounded-[100px]"
+                style={{
+                  background: "rgba(0, 0, 0, 0.3)",
+                }}
+              />
             ) : (
               <>
                 <div className="absolute inset-0 rounded-[100px] bg-white/[0.65]" />
