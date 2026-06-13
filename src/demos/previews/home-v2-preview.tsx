@@ -859,7 +859,7 @@ function VersionThreeBottomBarContent({
           style={{
             opacity: uploadOpen ? 0 : 1,
             transform: activeIsSolve
-              ? "translate3d(51px, -4px, 0)"
+              ? "translate3d(51px, 0, 0)"
               : "translate3d(0, 0, 0)",
             transition:
               "opacity 120ms ease, transform 360ms cubic-bezier(0.32, 0.72, 0, 1), background 260ms ease, border-color 260ms ease",
