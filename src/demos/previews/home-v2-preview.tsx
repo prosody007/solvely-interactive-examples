@@ -752,14 +752,14 @@ function HomeV2BottomBarContent({
               showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
             }`}
           >
-            <span className="relative h-[28px] w-[28px]">
+            <span className="relative h-[28px] w-[28px] shrink-0 overflow-hidden">
               <img
                 src={
                   activeIsSolve
                     ? `${ASSET}/tab-study-inactive-dark-figma@3x.png`
                     : activeIsTutor
-                      ? `${ASSET}/tab-study-inactive-b.png`
-                    : `${ASSET}/tab-study-active-figma.svg`
+                      ? `${ASSET}/tab-study-inactive-b@3x.png`
+                    : `${ASSET}/tab-study-active-figma@3x.png`
                 }
                 alt=""
                 draggable={false}
@@ -767,13 +767,14 @@ function HomeV2BottomBarContent({
               />
             </span>
             <span
-              className="text-center text-[10px] font-semibold leading-[12px]"
+              className="w-full text-center text-[10px] font-semibold leading-[12px] tracking-[-0.1px]"
               style={{
                 color: activeIsSolve
                   ? "#F1F3F5"
                   : activeIsTutor
                     ? "#111111"
                     : "#007AFF",
+                fontWeight: activeIsSolve ? 590 : undefined,
                 transition: "color 180ms ease",
               }}
             >
@@ -787,14 +788,12 @@ function HomeV2BottomBarContent({
               showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
             }`}
           >
-            <span className="relative h-[28px] w-[28px]">
+            <span className="relative h-[28px] w-[28px] shrink-0 overflow-hidden">
               <img
                 src={
                   activeIsSolve
-                    ? `${ASSET}/tab-solve-active-dark-figma.svg`
-                    : showTutorTab
-                      ? `${ASSET}/tab-solve-inactive-b.png`
-                      : `${ASSET}/tab-solve-inactive-figma@3x.png`
+                    ? `${ASSET}/tab-solve-active-dark-figma@3x.png`
+                    : `${ASSET}/tab-solve-inactive-b@3x.png`
                 }
                 alt=""
                 draggable={false}
@@ -821,14 +820,14 @@ function HomeV2BottomBarContent({
                 <img
                   src={
                     activeIsTutor
-                      ? `${ASSET}/tab-tutor-active.png`
+                      ? `${ASSET}/tab-tutor-active@3x.png`
                       : activeIsSolve
-                        ? `${ASSET}/tab-tutor-inactive-dark.png`
-                      : `${ASSET}/tab-tutor-inactive.png`
+                        ? `${ASSET}/tab-tutor-inactive-dark@3x.png`
+                      : `${ASSET}/tab-tutor-inactive@3x.png`
                   }
                   alt=""
                   draggable={false}
-                  className="absolute left-1/2 top-1/2 h-[24px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+                  className="absolute inset-0 h-full w-full object-contain"
                 />
               </span>
               <span
@@ -1093,7 +1092,9 @@ export function HomeV2Preview({
 function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolean }) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2Tab>("study");
-  const hideHomeTabBar = showTutorTab && activeTab === "tutor";
+  const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
+  const hideHomeTabBar =
+    showTutorTab && activeTab === "tutor" && tutorSubpageVisible;
 
   useEffect(() => {
     if (!showTutorTab && activeTab === "tutor") {
@@ -1101,6 +1102,12 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
       setUploadOpen(false);
     }
   }, [showTutorTab, activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== "tutor" && tutorSubpageVisible) {
+      setTutorSubpageVisible(false);
+    }
+  }, [activeTab, tutorSubpageVisible]);
 
   const changeTab = (tab: HomeV2Tab) => {
     setActiveTab(tab);
@@ -1128,7 +1135,11 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
             }
           />
         ) : activeTab === "tutor" && showTutorTab ? (
-          <TutorPreview embedded hideBottomNav />
+          <TutorPreview
+            embedded
+            hideBottomNav
+            onSubpageVisibilityChange={setTutorSubpageVisible}
+          />
         ) : (
           <>
             <VersionOneHeader />
