@@ -220,7 +220,13 @@ const TUTOR_PRELOAD_ASSETS = [
   "/figma/tutor/speed-menu/checkmark.svg",
 ];
 
-export function TutorPreview() {
+export function TutorPreview({
+  embedded = false,
+  hideBottomNav = false,
+}: {
+  embedded?: boolean;
+  hideBottomNav?: boolean;
+} = {}) {
   const [activeIndex, setActiveIndex] = useState(1); // 中央卡（rollercoaster）选中
   const [activeTab, setActiveTab] = useState<TutorTabId>("tutor");
   const [historyVisible, setHistoryVisible] = useState(false);
@@ -290,8 +296,8 @@ export function TutorPreview() {
     }, 490);
   };
 
-  return (
-    <DemoCanvas mode="fill" background="#F6F8FA">
+  const content = (
+    <>
       <style>
         {`
           @keyframes tutor-history-enter {
@@ -583,10 +589,12 @@ export function TutorPreview() {
         {/* 底部 CTA */}
         <BottomCTA onSubmitVoice={openLoading} />
 
-        <TutorBottomNav
-          activeTab={activeTab}
-          onChange={setActiveTab}
-        />
+        {!hideBottomNav ? (
+          <TutorBottomNav
+            activeTab={activeTab}
+            onChange={setActiveTab}
+          />
+        ) : null}
       </div>
       {historyVisible ? (
         <div
@@ -640,6 +648,23 @@ export function TutorPreview() {
           <TutorAnswerPreviewScreen onBack={closePreview} />
         </div>
       ) : null}
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ background: "#F6F8FA" }}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <DemoCanvas mode="fill" background="#F6F8FA">
+      {content}
     </DemoCanvas>
   );
 }

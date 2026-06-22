@@ -272,6 +272,13 @@ const SEGMENT_TEXT_BASE = {
   whiteSpace: "nowrap" as const,
 };
 
+const EMBEDDED_SOLVE_CATEGORIES = [
+  { label: "Notes", left: 115.5, active: false },
+  { label: "Solution", left: 196.5, active: true },
+  { label: "Flashcards", left: 299, active: false },
+  { label: "Quiz", left: 386, active: false },
+] as const;
+
 function CaptureMode({
   mode,
   setMode,
@@ -305,17 +312,52 @@ function CaptureMode({
         style={{
           position: "absolute",
           left: 0,
-          right: 0,
+          width: useEmbeddedSolveLayout ? 393 : "100%",
           bottom: useEmbeddedSolveLayout ? -112 : 0,
           height: useEmbeddedSolveLayout ? 272 : 160,
           background: useEmbeddedSolveLayout
-            ? "linear-gradient(180deg, rgba(17, 17, 17, 0.8) 0%, rgba(17, 17, 17, 0.0001) 100%)"
+            ? "linear-gradient(180deg, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0.0001) 100%)"
             : "linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0) 100%)",
           backdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
           WebkitBackdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
           transform: useEmbeddedSolveLayout ? "rotate(-180deg)" : undefined,
         }}
       />
+
+      {useEmbeddedSolveLayout ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 22,
+            width: 393,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          {EMBEDDED_SOLVE_CATEGORIES.map((item) => (
+            <span
+              key={item.label}
+              style={{
+                position: "absolute",
+                left: item.left,
+                top: 0,
+                transform: "translateX(-50%)",
+                fontFamily:
+                  "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
+                fontWeight: 600,
+                fontSize: 16,
+                lineHeight: "16px",
+                color: "#FFFFFF",
+                opacity: item.active ? 1 : 0.6,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {/* Photos — Figma node 1467:14083 */}
       <div

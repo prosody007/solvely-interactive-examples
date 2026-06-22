@@ -2,12 +2,13 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { HomePreview } from "./home-preview";
+import { TutorPreview } from "./tutor-preview";
 
 export type HomeExperimentVariant = "experiment-a" | "experiment-b";
-type HomeV2Tab = "study" | "solve";
+type HomeV2Tab = "study" | "solve" | "tutor";
 
 const ASSET = "/figma/home-v2";
 const SOLVE_CAPTURE_TABBAR_SPACER_H = 77;
@@ -602,7 +603,7 @@ function HomeUploadMenu({
 }) {
   return (
     <div
-      className={`absolute inset-0 z-[120] ${
+      className={`absolute inset-0 z-[160] ${
         open ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
@@ -610,7 +611,13 @@ function HomeUploadMenu({
         type="button"
         aria-label="Close upload menu"
         className="absolute inset-0 border-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.9)_50%,#FFFFFF_100%)] p-0 backdrop-blur-[8px]"
-        onClick={onClose}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+        }}
         tabIndex={-1}
         style={{
           opacity: open ? 1 : 0,
@@ -661,11 +668,13 @@ function HomeV2BottomBar({
   onTabChange,
   uploadOpen,
   onToggleUpload,
+  showTutorTab = false,
 }: {
   activeTab: HomeV2Tab;
   onTabChange: (tab: HomeV2Tab) => void;
   uploadOpen: boolean;
   onToggleUpload: () => void;
+  showTutorTab?: boolean;
 }) {
   return (
     <div className="absolute bottom-0 left-0 z-[130] flex w-full flex-col items-start">
@@ -674,6 +683,7 @@ function HomeV2BottomBar({
         onTabChange={onTabChange}
         uploadOpen={uploadOpen}
         onToggleUpload={onToggleUpload}
+        showTutorTab={showTutorTab}
       />
     </div>
   );
@@ -684,20 +694,25 @@ function HomeV2BottomBarContent({
   onTabChange,
   uploadOpen = false,
   onToggleUpload,
+  showTutorTab = false,
 }: {
   activeTab: HomeV2Tab;
   onTabChange: (tab: HomeV2Tab) => void;
   uploadOpen?: boolean;
   onToggleUpload?: () => void;
+  showTutorTab?: boolean;
 }) {
   const showPlus = activeTab === "study";
   const activeIsSolve = activeTab === "solve";
+  const activeIsTutor = activeTab === "tutor";
 
   return (
     <>
       <div className="relative flex w-full items-center justify-center px-[24px] pb-[8px] pt-[16px]">
         <div
-          className="relative z-0 flex h-[62px] w-[243px] items-center overflow-hidden rounded-full p-[4px] shadow-[0_12px_24px_rgba(0,0,0,0.12)] backdrop-blur-[6px]"
+          className={`relative z-0 flex h-[62px] items-center overflow-hidden rounded-full p-[4px] shadow-[0_12px_24px_rgba(0,0,0,0.12)] backdrop-blur-[6px] ${
+            showTutorTab ? "w-[294px]" : "w-[243px]"
+          }`}
           style={{
             background: activeIsSolve
               ? "rgba(0, 0, 0, 0.3)"
@@ -718,8 +733,14 @@ function HomeV2BottomBarContent({
               background: activeIsSolve
                 ? "rgba(255, 255, 255, 0.08)"
                 : "rgba(0, 0, 0, 0.05)",
-              width: "calc((100% - 8px) / 2)",
-              transform: activeIsSolve ? "translateX(100%)" : "translateX(0)",
+              width: showTutorTab ? 106 : "calc((100% - 8px) / 2)",
+              transform: activeIsSolve
+                ? showTutorTab
+                  ? "translateX(90px)"
+                  : "translateX(100%)"
+                : activeIsTutor
+                  ? "translateX(180px)"
+                : "translateX(0)",
               transition:
                 "background 180ms ease, transform 280ms cubic-bezier(0.32, 0.72, 0, 1)",
             }}
@@ -727,24 +748,32 @@ function HomeV2BottomBarContent({
           <button
             type="button"
             onClick={() => onTabChange("study")}
-            className="relative z-10 flex h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px]"
+            className={`relative z-10 flex h-[54px] flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px] ${
+              showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
+            }`}
           >
             <span className="relative h-[28px] w-[28px]">
               <img
                 src={
                   activeIsSolve
                     ? `${ASSET}/tab-study-inactive-dark-figma@3x.png`
+                    : activeIsTutor
+                      ? `${ASSET}/tab-study-inactive-b.png`
                     : `${ASSET}/tab-study-active-figma.svg`
                 }
                 alt=""
                 draggable={false}
-                className="absolute left-1/2 top-1/2 h-[24px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+                className="absolute inset-0 h-full w-full object-contain"
               />
             </span>
             <span
               className="text-center text-[10px] font-semibold leading-[12px]"
               style={{
-                color: activeIsSolve ? "#F1F3F5" : "#007AFF",
+                color: activeIsSolve
+                  ? "#F1F3F5"
+                  : activeIsTutor
+                    ? "#111111"
+                    : "#007AFF",
                 transition: "color 180ms ease",
               }}
             >
@@ -754,20 +783,22 @@ function HomeV2BottomBarContent({
           <button
             type="button"
             onClick={() => onTabChange("solve")}
-            className="relative z-10 flex h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px]"
+            className={`relative z-10 flex h-[54px] flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px] ${
+              showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
+            }`}
           >
             <span className="relative h-[28px] w-[28px]">
               <img
                 src={
                   activeIsSolve
                     ? `${ASSET}/tab-solve-active-dark-figma.svg`
-                    : `${ASSET}/tab-solve-inactive-figma@3x.png`
+                    : showTutorTab
+                      ? `${ASSET}/tab-solve-inactive-b.png`
+                      : `${ASSET}/tab-solve-inactive-figma@3x.png`
                 }
                 alt=""
                 draggable={false}
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
-                  activeIsSolve ? "h-[22px] w-[24px]" : "h-[28px] w-[28px]"
-                }`}
+                className="absolute inset-0 h-full w-full object-contain"
               />
             </span>
             <span
@@ -780,6 +811,52 @@ function HomeV2BottomBarContent({
               Solve
             </span>
           </button>
+          {showTutorTab ? (
+            <button
+              type="button"
+              onClick={() => onTabChange("tutor")}
+              className="relative z-10 flex h-[54px] w-[102px] shrink-0 flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px]"
+            >
+              <span className="relative h-[28px] w-[28px] shrink-0 overflow-hidden">
+                <img
+                  src={
+                    activeIsTutor
+                      ? `${ASSET}/tab-tutor-active.png`
+                      : activeIsSolve
+                        ? `${ASSET}/tab-tutor-inactive-dark.png`
+                      : `${ASSET}/tab-tutor-inactive.png`
+                  }
+                  alt=""
+                  draggable={false}
+                  className="absolute left-1/2 top-1/2 h-[24px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+                />
+              </span>
+              <span
+                className="w-full text-center text-[10px] font-semibold leading-[12px]"
+                style={{
+                  color: activeIsTutor
+                    ? "#007AFF"
+                    : activeIsSolve
+                      ? "#F1F3F5"
+                      : "#111111",
+                }}
+              >
+                AI Tutor
+              </span>
+              <img
+                src={
+                  activeIsTutor
+                    ? `${ASSET}/tab-tutor-badge-active.png`
+                    : activeIsSolve
+                      ? `${ASSET}/tab-tutor-badge-dark.png`
+                    : `${ASSET}/tab-tutor-badge.png`
+                }
+                alt=""
+                draggable={false}
+                className="absolute left-[55.5px] top-px h-[13px] w-[21px]"
+              />
+            </button>
+          ) : null}
         </div>
         <button
           type="button"
@@ -1010,13 +1087,20 @@ export function HomeV2Preview({
 }: {
   experiment?: HomeExperimentVariant;
 }) {
-  if (experiment === "experiment-b") return <HomeVersionThreePreview />;
-  return <HomeVersionOnePreview />;
+  return <HomeVersionOnePreview showTutorTab={experiment === "experiment-b"} />;
 }
 
-function HomeVersionOnePreview() {
+function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolean }) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2Tab>("study");
+  const hideHomeTabBar = showTutorTab && activeTab === "tutor";
+
+  useEffect(() => {
+    if (!showTutorTab && activeTab === "tutor") {
+      setActiveTab("study");
+      setUploadOpen(false);
+    }
+  }, [showTutorTab, activeTab]);
 
   const changeTab = (tab: HomeV2Tab) => {
     setActiveTab(tab);
@@ -1043,6 +1127,8 @@ function HomeVersionOnePreview() {
               />
             }
           />
+        ) : activeTab === "tutor" && showTutorTab ? (
+          <TutorPreview embedded hideBottomNav />
         ) : (
           <>
             <VersionOneHeader />
@@ -1085,12 +1171,15 @@ function HomeVersionOnePreview() {
             />
           </>
         )}
-        <HomeV2BottomBar
-          activeTab={activeTab}
-          onTabChange={changeTab}
-          uploadOpen={uploadOpen}
-          onToggleUpload={() => setUploadOpen((open) => !open)}
-        />
+        {!hideHomeTabBar ? (
+          <HomeV2BottomBar
+            activeTab={activeTab}
+            onTabChange={changeTab}
+            uploadOpen={uploadOpen}
+            onToggleUpload={() => setUploadOpen((open) => !open)}
+            showTutorTab={showTutorTab}
+          />
+        ) : null}
       </div>
     </DemoCanvas>
   );
