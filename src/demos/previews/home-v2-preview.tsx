@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { DemoCanvas } from "@/components/simulator/demo-canvas";
 import { HomePreview } from "./home-preview";
 
-export type HomeExperimentVariant = "version-1" | "version-2" | "version-3";
+export type HomeExperimentVariant = "experiment-a" | "experiment-b";
 type HomeV2Tab = "study" | "solve";
 
 const ASSET = "/figma/home-v2";
@@ -187,13 +187,13 @@ function CreateStudyCard({
 
   return (
     <div
-      className={`flex min-h-[96px] shrink-0 flex-col items-center justify-center gap-[8px] py-[12px] ${
+      className={`flex min-h-[104px] shrink-0 flex-col items-center justify-center gap-[10px] py-[12px] ${
         compact ? "w-max min-w-[148px]" : "min-w-0 flex-1"
       }`}
     >
-      <img src={icon} alt="" draggable={false} className="h-[44px] w-[44px] shrink-0" />
+      <img src={icon} alt="" draggable={false} className="h-[56px] w-[56px] shrink-0" />
       <div className="flex w-full flex-col items-center">
-        <div className="w-full truncate whitespace-nowrap text-center text-[14px] font-medium leading-[14px] text-[#111111]">
+        <div className="w-full truncate whitespace-nowrap text-center text-[14px] font-medium leading-[14px] text-[#595c60]">
           {title}
         </div>
       </div>
@@ -441,6 +441,9 @@ function VersionOneHeader() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Exam Prep
         </h1>
+        <p className="m-0 text-[12px] font-normal capitalize leading-[12px] text-[#989B9E]">
+          Al notes from new recording are ready
+        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -484,6 +487,9 @@ function VersionThreeHeader() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Exam Prep
         </h1>
+        <p className="m-0 text-[12px] font-normal capitalize leading-[12px] text-[#989B9E]">
+          Al notes from new recording are ready
+        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -609,18 +615,18 @@ function HomeUploadMenu({
         style={{
           opacity: open ? 1 : 0,
           transitionProperty: "opacity",
-          transitionDuration: "240ms",
+          transitionDuration: "160ms",
           transitionTimingFunction: "ease-out",
-          transitionDelay: open ? "60ms" : "0ms",
+          transitionDelay: open ? "20ms" : "0ms",
           willChange: "opacity",
           transform: "translateZ(0)",
         }}
       />
-      <div className="pointer-events-none absolute bottom-[120px] right-[20px] flex w-[173px] flex-col items-end gap-[4px]">
+      <div className="pointer-events-none absolute bottom-[110px] right-[16px] flex w-[181px] flex-col items-end gap-[4px]">
         {UPLOAD_MENU_ITEMS.map((item, index) => (
           <div
             key={item.label}
-            className="flex h-[64px] w-[173px] items-center justify-between rounded-full py-[8px] pl-[16px] pr-[8px]"
+            className="flex h-[64px] w-[181px] items-center justify-between rounded-full py-[8px] pl-[16px] pr-[8px]"
             style={{
               opacity: open ? 1 : 0,
               transform: open
@@ -689,9 +695,7 @@ function HomeV2BottomBarContent({
 
   return (
     <>
-      <div
-        className="flex w-full items-center justify-between px-[24px] pb-[8px] pt-[16px]"
-      >
+      <div className="relative flex w-full items-center justify-center px-[24px] pb-[8px] pt-[16px]">
         <div
           className="relative z-0 flex h-[62px] w-[243px] items-center overflow-hidden rounded-full p-[4px] shadow-[0_12px_24px_rgba(0,0,0,0.12)] backdrop-blur-[6px]"
           style={{
@@ -702,12 +706,10 @@ function HomeV2BottomBarContent({
               ? "0px 12px 24px rgba(0, 0, 0, 0.12), inset 0.5px 0.5px 0px rgba(255, 255, 255, 0.6), inset -0.5px -0.5px 0px rgba(255, 255, 255, 0.6)"
               : "0px 12px 24px rgba(0, 0, 0, 0.12)",
             opacity: uploadOpen ? 0 : 1,
-            transform: activeIsSolve
-              ? "translate3d(51px, 0, 0)"
-              : "translate3d(0, 0, 0)",
+            transform: "translate3d(0, 0, 0)",
             transition:
-              "opacity 120ms ease, transform 360ms cubic-bezier(0.32, 0.72, 0, 1)",
-            willChange: "transform, opacity",
+              "opacity 120ms ease, background 260ms ease, box-shadow 260ms ease",
+            willChange: "opacity",
           }}
         >
           <span
@@ -731,7 +733,7 @@ function HomeV2BottomBarContent({
               <img
                 src={
                   activeIsSolve
-                    ? `${ASSET}/tab-study-inactive-dark-figma.svg`
+                    ? `${ASSET}/tab-study-inactive-dark-figma@3x.png`
                     : `${ASSET}/tab-study-active-figma.svg`
                 }
                 alt=""
@@ -742,7 +744,7 @@ function HomeV2BottomBarContent({
             <span
               className="text-center text-[10px] font-semibold leading-[12px]"
               style={{
-                color: activeIsSolve ? "rgba(255, 255, 255, 0.6)" : "#007AFF",
+                color: activeIsSolve ? "#F1F3F5" : "#007AFF",
                 transition: "color 180ms ease",
               }}
             >
@@ -759,17 +761,19 @@ function HomeV2BottomBarContent({
                 src={
                   activeIsSolve
                     ? `${ASSET}/tab-solve-active-dark-figma.svg`
-                    : `${ASSET}/tab-solve-inactive-figma.svg`
+                    : `${ASSET}/tab-solve-inactive-figma@3x.png`
                 }
                 alt=""
                 draggable={false}
-                className="absolute left-1/2 top-1/2 h-[22px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
+                  activeIsSolve ? "h-[22px] w-[24px]" : "h-[28px] w-[28px]"
+                }`}
               />
             </span>
             <span
               className="text-center text-[10px] font-semibold leading-[12px]"
               style={{
-                color: activeIsSolve ? "#51A9FE" : "#989B9E",
+                color: activeIsSolve ? "#51A9FE" : "#111111",
                 transition: "color 180ms ease",
               }}
             >
@@ -780,31 +784,31 @@ function HomeV2BottomBarContent({
         <button
           type="button"
           onClick={onToggleUpload}
-          className="relative h-[62px] w-[62px] overflow-hidden rounded-full border-0 bg-[#007AFF] p-0 shadow-[0_12px_24px_rgba(0,0,0,0.12)]"
+          className="absolute right-[16px] top-[-52px] h-[62px] w-[62px] overflow-hidden rounded-[100px] border-0 bg-[#007AFF] p-0 shadow-[0_8px_40px_rgba(0,0,0,0.14)] backdrop-blur-[6px]"
           style={{
             zIndex: uploadOpen ? 140 : 0,
-            opacity: showPlus ? 1 : 0,
-            pointerEvents: showPlus ? "auto" : "none",
-            transform: showPlus ? "scale(1)" : "scale(0.72)",
-            transition: showPlus
+            opacity: showPlus && !uploadOpen ? 1 : 0,
+            pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
+            transform: showPlus && !uploadOpen ? "scale(1)" : "scale(0.72)",
+            transition: activeIsSolve
+              ? "none"
+              : showPlus && !uploadOpen
               ? "opacity 140ms ease, transform 220ms cubic-bezier(0.32, 0.72, 0, 1)"
               : "transform 120ms cubic-bezier(0.4, 0, 1, 1), opacity 90ms ease 70ms",
             willChange: "transform, opacity",
           }}
-          tabIndex={showPlus ? 0 : -1}
+          tabIndex={showPlus && !uploadOpen ? 0 : -1}
         >
           <img
-            src={`${ASSET}/plus.svg`}
+            src={`${ASSET}/plus@3x.png`}
             alt=""
             draggable={false}
             className="absolute left-1/2 top-1/2 h-[28px] w-[28px] transition-transform duration-240 ease-out"
             style={{
-              transform: uploadOpen
-                ? "translate(-50%, -50%) rotate(45deg)"
-                : "translate(-50%, -50%) rotate(0deg)",
+              transform: "translate(-50%, -50%) rotate(0deg)",
             }}
           />
-          <div className="absolute inset-0 rounded-full shadow-[inset_1px_1px_0_white,inset_-1px_-1px_0_white]" />
+          <div className="absolute inset-0 rounded-[inherit] shadow-[inset_1px_1px_0_#B3D7FF,inset_-1px_-1px_0_#B3D7FF]" />
         </button>
       </div>
       <div className="relative h-[34px] w-full">
@@ -853,7 +857,7 @@ function VersionThreeBottomBarContent({
 
   return (
     <>
-      <div className="flex w-full items-center justify-between px-[24px] pb-[8px] pt-[16px]">
+      <div className="relative flex w-full items-center justify-center px-[24px] pb-[8px] pt-[16px]">
         <div
           className="relative flex h-[62px] w-[243px] shrink-0 items-center overflow-hidden rounded-[100px] p-[4px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
           style={{
@@ -861,12 +865,10 @@ function VersionThreeBottomBarContent({
             backdropFilter: activeIsSolve ? "blur(6px)" : undefined,
             WebkitBackdropFilter: activeIsSolve ? "blur(6px)" : undefined,
             opacity: uploadOpen ? 0 : 1,
-            transform: activeIsSolve
-              ? "translate3d(51px, 0, 0)"
-              : "translate3d(0, 0, 0)",
+            transform: "translate3d(0, 0, 0)",
             transition:
-              "opacity 120ms ease, transform 360ms cubic-bezier(0.32, 0.72, 0, 1), background 260ms ease, border-color 260ms ease",
-            willChange: "transform, opacity",
+              "opacity 120ms ease, background 260ms ease, border-color 260ms ease",
+            willChange: "opacity",
           }}
         >
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[100px]">
@@ -909,7 +911,7 @@ function VersionThreeBottomBarContent({
               <img
                 src={
                   activeIsSolve
-                    ? `${ASSET}/v3-tab-study-inactive-dark.svg`
+                    ? `${ASSET}/v3-tab-study-inactive-dark@3x.png`
                     : `${ASSET}/v3-tab-study-active.svg`
                 }
                 alt=""
@@ -920,7 +922,7 @@ function VersionThreeBottomBarContent({
             <span
               className="w-full text-center text-[10px] font-semibold leading-[12px] tracking-[-0.1px]"
               style={{
-                color: activeIsSolve ? "#FFFFFF" : "#007AFF",
+                color: activeIsSolve ? "#F1F3F5" : "#007AFF",
               }}
             >
               Study
@@ -962,13 +964,15 @@ function VersionThreeBottomBarContent({
           />
         </div>
         <div
-          className="relative flex h-[62px] w-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[100px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
+          className="absolute right-[16px] top-[-52px] flex h-[62px] w-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[100px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
           style={{
             zIndex: uploadOpen ? 140 : 0,
-            opacity: showPlus ? 1 : 0,
-            pointerEvents: showPlus ? "auto" : "none",
-            transform: showPlus ? "scale(1)" : "scale(0.72)",
-            transition: showPlus
+            opacity: showPlus && !uploadOpen ? 1 : 0,
+            pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
+            transform: showPlus && !uploadOpen ? "scale(1)" : "scale(0.72)",
+            transition: activeIsSolve
+              ? "none"
+              : showPlus && !uploadOpen
               ? "opacity 140ms ease, transform 220ms cubic-bezier(0.32, 0.72, 0, 1)"
               : "transform 120ms cubic-bezier(0.4, 0, 1, 1), opacity 90ms ease 70ms",
             willChange: "transform, opacity",
@@ -979,15 +983,15 @@ function VersionThreeBottomBarContent({
             type="button"
             onClick={onToggleUpload}
             className="relative z-10 flex h-[62px] w-[62px] items-center justify-center rounded-[100px] border-0 bg-transparent p-0"
-            tabIndex={showPlus ? 0 : -1}
+            tabIndex={showPlus && !uploadOpen ? 0 : -1}
           >
             <img
-              src={`${ASSET}/v3-plus.svg`}
+              src={`${ASSET}/v3-plus@3x.png`}
               alt=""
               draggable={false}
               className="h-[28px] w-[28px] transition-transform duration-240 ease-out"
               style={{
-                transform: uploadOpen ? "rotate(45deg)" : "rotate(0deg)",
+                transform: "rotate(0deg)",
               }}
             />
           </button>
@@ -1002,12 +1006,11 @@ function VersionThreeBottomBarContent({
 }
 
 export function HomeV2Preview({
-  experiment = "version-1",
+  experiment = "experiment-a",
 }: {
   experiment?: HomeExperimentVariant;
 }) {
-  if (experiment === "version-2") return <HomeVersionTwoPreview />;
-  if (experiment === "version-3") return <HomeVersionThreePreview />;
+  if (experiment === "experiment-b") return <HomeVersionThreePreview />;
   return <HomeVersionOnePreview />;
 }
 

@@ -1314,9 +1314,8 @@ function SimulatorPreview({
           value={homeExperiment}
           onChange={onHomeExperimentChange}
           options={[
-            { value: "version-1", label: "版本一" },
-            { value: "version-2", label: "版本二" },
-            { value: "version-3", label: "版本三" },
+            { value: "experiment-a", label: "实验组A" },
+            { value: "experiment-b", label: "实验组B" },
           ]}
         />
       ) : null}
@@ -1326,7 +1325,7 @@ function SimulatorPreview({
 
 function ScreenPreview({
   activeKey,
-  homeExperiment = "version-1",
+  homeExperiment = "experiment-a",
   studyExperiment = "experiment-1",
 }: {
   activeKey: ScreenKey;
@@ -1351,7 +1350,7 @@ export default function Home() {
   const router = useRouter();
   const activeScreen = getActiveScreen(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [homeExperiment, setHomeExperiment] = useState<HomeExperiment>("version-1");
+  const [homeExperiment, setHomeExperiment] = useState<HomeExperiment>("experiment-a");
   const [studyExperiment, setStudyExperiment] =
     useState<StudyExperiment>("experiment-1");
 
