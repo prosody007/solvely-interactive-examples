@@ -223,11 +223,9 @@ const TUTOR_PRELOAD_ASSETS = [
 export function TutorPreview({
   embedded = false,
   hideBottomNav = false,
-  onSubpageVisibilityChange,
 }: {
   embedded?: boolean;
   hideBottomNav?: boolean;
-  onSubpageVisibilityChange?: (visible: boolean) => void;
 } = {}) {
   const [activeIndex, setActiveIndex] = useState(1); // 中央卡（rollercoaster）选中
   const [activeTab, setActiveTab] = useState<TutorTabId>("tutor");
@@ -297,18 +295,6 @@ export function TutorPreview({
       setPreviewClosing(false);
     }, 490);
   };
-
-  const subpageVisible = historyVisible || loadingVisible || previewVisible;
-
-  useEffect(() => {
-    onSubpageVisibilityChange?.(subpageVisible);
-  }, [subpageVisible, onSubpageVisibilityChange]);
-
-  useEffect(() => {
-    return () => {
-      onSubpageVisibilityChange?.(false);
-    };
-  }, [onSubpageVisibilityChange]);
 
   const content = (
     <>
