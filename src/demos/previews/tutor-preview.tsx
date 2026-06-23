@@ -223,9 +223,11 @@ const TUTOR_PRELOAD_ASSETS = [
 export function TutorPreview({
   embedded = false,
   hideBottomNav = false,
+  onSubpageVisibilityChange,
 }: {
   embedded?: boolean;
   hideBottomNav?: boolean;
+  onSubpageVisibilityChange?: (visible: boolean) => void;
 } = {}) {
   const [activeIndex, setActiveIndex] = useState(1); // 中央卡（rollercoaster）选中
   const [activeTab, setActiveTab] = useState<TutorTabId>("tutor");
@@ -236,6 +238,17 @@ export function TutorPreview({
   const [loadingCloseMode, setLoadingCloseMode] = useState<"back" | "complete">("back");
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewClosing, setPreviewClosing] = useState(false);
+
+  useEffect(() => {
+    onSubpageVisibilityChange?.(
+      historyVisible || loadingVisible || previewVisible,
+    );
+  }, [
+    historyVisible,
+    loadingVisible,
+    onSubpageVisibilityChange,
+    previewVisible,
+  ]);
 
   useEffect(() => {
     const preloadedImages = TUTOR_PRELOAD_ASSETS.map((src) => {

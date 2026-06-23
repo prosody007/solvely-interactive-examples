@@ -15,6 +15,11 @@ const SOLVE_CAPTURE_TABBAR_SPACER_H = 77;
 
 const VERSION_ONE_CREATE_ITEMS = [
   {
+    title: "Ai Notes",
+    subtitle: "AI notes from new recording",
+    icon: `${ASSET}/create-ai-notes-new@3x.png`,
+  },
+  {
     title: "Study Guide",
     subtitle: "Organize key ideas",
     icon: `${ASSET}/create-study-guide-new@3x.png`,
@@ -33,11 +38,6 @@ const VERSION_ONE_CREATE_ITEMS = [
     title: "Podcast",
     subtitle: "Study hands-free",
     icon: `${ASSET}/create-podcast-new@3x.png`,
-  },
-  {
-    title: "Mock Exam",
-    subtitle: "AI-powered exam prep",
-    icon: `${ASSET}/create-mock-exam-new@3x.png`,
   },
   {
     title: "Mini Games",
@@ -81,6 +81,11 @@ const VERSION_TWO_CREATE_ITEMS = [
 
 const VERSION_THREE_CREATE_ITEMS = [
   {
+    title: "Ai Notes",
+    subtitle: "AI notes from new recording",
+    icon: `${ASSET}/create-ai-notes-new@3x.png`,
+  },
+  {
     title: "Study Guide",
     subtitle: "Organize key ideas",
     icon: `${ASSET}/create-study-guide-new@3x.png`,
@@ -99,11 +104,6 @@ const VERSION_THREE_CREATE_ITEMS = [
     title: "Podcast",
     subtitle: "Study hands-free",
     icon: `${ASSET}/create-podcast-new@3x.png`,
-  },
-  {
-    title: "Mock Exam",
-    subtitle: "AI-powered exam prep",
-    icon: `${ASSET}/create-mock-exam-new@3x.png`,
   },
   {
     title: "Mini Games",
@@ -442,9 +442,6 @@ function VersionOneHeader() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Exam Prep
         </h1>
-        <p className="m-0 text-[12px] font-normal capitalize leading-[12px] text-[#989B9E]">
-          Al notes from new recording are ready
-        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -465,9 +462,6 @@ function VersionTwoHeader() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Master
         </h1>
-        <p className="m-0 text-[12px] font-normal capitalize leading-[12px] text-[#989B9E]">
-          Al notes from new recording are ready
-        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -488,9 +482,6 @@ function VersionThreeHeader() {
         <h1 className="m-0 font-[var(--font-poppins)] text-[20px] font-bold leading-[18px] text-[#111111]">
           Solve. Study. Exam Prep
         </h1>
-        <p className="m-0 text-[12px] font-normal capitalize leading-[12px] text-[#989B9E]">
-          Al notes from new recording are ready
-        </p>
       </div>
       <div className="relative h-[40px] w-[40px] shrink-0 overflow-hidden rounded-full bg-[#B1D5FF]">
         <img
@@ -861,7 +852,7 @@ function HomeV2BottomBarContent({
         <button
           type="button"
           onClick={onToggleUpload}
-          className="absolute right-[16px] top-[-52px] h-[62px] w-[62px] overflow-hidden rounded-[100px] border-0 bg-[#007AFF] p-0 shadow-[0_8px_40px_rgba(0,0,0,0.14)] backdrop-blur-[6px]"
+          className="absolute right-[16px] top-[-52px] h-[52px] w-[52px] overflow-hidden rounded-[100px] border-0 bg-[#007AFF] p-0 shadow-[0_8px_40px_rgba(0,0,0,0.14)] backdrop-blur-[6px]"
           style={{
             zIndex: uploadOpen ? 140 : 0,
             opacity: showPlus && !uploadOpen ? 1 : 0,
@@ -1041,7 +1032,7 @@ function VersionThreeBottomBarContent({
           />
         </div>
         <div
-          className="absolute right-[16px] top-[-52px] flex h-[62px] w-[62px] shrink-0 items-center justify-center overflow-hidden rounded-[100px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
+          className="absolute right-[16px] top-[-52px] flex h-[52px] w-[52px] shrink-0 items-center justify-center overflow-hidden rounded-[100px] shadow-[0_8px_40px_rgba(0,0,0,0.14)]"
           style={{
             zIndex: uploadOpen ? 140 : 0,
             opacity: showPlus && !uploadOpen ? 1 : 0,
@@ -1059,7 +1050,7 @@ function VersionThreeBottomBarContent({
           <button
             type="button"
             onClick={onToggleUpload}
-            className="relative z-10 flex h-[62px] w-[62px] items-center justify-center rounded-[100px] border-0 bg-transparent p-0"
+            className="relative z-10 flex h-[52px] w-[52px] items-center justify-center rounded-[100px] border-0 bg-transparent p-0"
             tabIndex={showPlus && !uploadOpen ? 0 : -1}
           >
             <img
@@ -1093,7 +1084,9 @@ export function HomeV2Preview({
 function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolean }) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2Tab>("study");
-  const hideHomeTabBar = showTutorTab && activeTab === "tutor";
+  const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
+  const hideHomeTabBar =
+    showTutorTab && activeTab === "tutor" && tutorSubpageVisible;
 
   useEffect(() => {
     if (!showTutorTab && activeTab === "tutor") {
@@ -1101,6 +1094,12 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
       setUploadOpen(false);
     }
   }, [showTutorTab, activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== "tutor") {
+      setTutorSubpageVisible(false);
+    }
+  }, [activeTab]);
 
   const changeTab = (tab: HomeV2Tab) => {
     setActiveTab(tab);
@@ -1128,7 +1127,11 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
             }
           />
         ) : activeTab === "tutor" && showTutorTab ? (
-          <TutorPreview embedded hideBottomNav />
+          <TutorPreview
+            embedded
+            hideBottomNav
+            onSubpageVisibilityChange={setTutorSubpageVisible}
+          />
         ) : (
           <>
             <VersionOneHeader />
