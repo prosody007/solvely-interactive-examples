@@ -697,192 +697,175 @@ function HomeV2BottomBarContent({
   const activeIsSolve = activeTab === "solve";
   const activeIsTutor = activeTab === "tutor";
 
-  return (
-    <>
-      <div className="relative flex w-full items-center justify-center px-[24px] pb-[8px] pt-[16px]">
+  if (!showTutorTab) {
+    return (
+      <>
         <div
-          className={`relative z-0 flex h-[62px] items-center overflow-hidden rounded-full p-[4px] shadow-[0_12px_24px_rgba(0,0,0,0.12)] backdrop-blur-[6px] ${
-            showTutorTab ? "w-[294px]" : "w-[243px]"
-          }`}
+          className="relative flex h-[90px] w-full flex-col items-center"
           style={{
-            background: activeIsSolve
-              ? "rgba(0, 0, 0, 0.3)"
-              : "rgba(255, 255, 255, 0.6)",
+            background: activeIsSolve ? "rgba(0, 0, 0, 0.6)" : "#FFFFFF",
             boxShadow: activeIsSolve
-              ? "0px 12px 24px rgba(0, 0, 0, 0.12), inset 0.5px 0.5px 0px rgba(255, 255, 255, 0.6), inset -0.5px -0.5px 0px rgba(255, 255, 255, 0.6)"
-              : "0px 12px 24px rgba(0, 0, 0, 0.12)",
+              ? "0px -1px 0px 0px rgba(255, 255, 255, 0.1)"
+              : "inset 0px 1px 0px #F6F8FA",
+            backdropFilter: activeIsSolve ? "blur(10px)" : undefined,
+            WebkitBackdropFilter: activeIsSolve ? "blur(10px)" : undefined,
             opacity: uploadOpen ? 0 : 1,
             transform: "translate3d(0, 0, 0)",
-            transition:
-              "opacity 120ms ease, background 260ms ease, box-shadow 260ms ease",
+            transition: "none",
             willChange: "opacity",
           }}
         >
-          <span
-            className="absolute bottom-[4px] left-[4px] top-[4px] rounded-full bg-black/5"
-            style={{
-              background: activeIsSolve
-                ? "rgba(255, 255, 255, 0.08)"
-                : "rgba(0, 0, 0, 0.05)",
-              width: showTutorTab ? 106 : "calc((100% - 8px) / 2)",
-              transform: activeIsSolve
-                ? showTutorTab
-                  ? "translateX(90px)"
-                  : "translateX(100%)"
-                : activeIsTutor
-                  ? "translateX(180px)"
-                : "translateX(0)",
-              transition:
-                "background 180ms ease, transform 280ms cubic-bezier(0.32, 0.72, 0, 1)",
-            }}
-          />
-          <button
-            type="button"
-            onClick={() => onTabChange("study")}
-            className={`relative z-10 flex h-[54px] flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px] ${
-              showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
-            }`}
+          <div
+            className="relative flex h-[56px] w-full shrink-0 items-center justify-between px-[40px]"
+            data-node-id={activeIsSolve ? "3312:28700" : "3312:28662"}
           >
-            <span className="relative h-[28px] w-[28px]">
-              <img
-                src={
-                  activeIsSolve
-                    ? `${ASSET}/tab-study-inactive-dark-figma@3x.png`
-                    : activeIsTutor
-                      ? `${ASSET}/tab-study-inactive-b.png`
-                    : `${ASSET}/tab-study-active-figma.svg`
-                }
-                alt=""
-                draggable={false}
-                className="absolute inset-0 h-full w-full object-contain"
-              />
-            </span>
-            <span
-              className="text-center text-[10px] font-semibold leading-[12px]"
-              style={{
-                color: activeIsSolve
-                  ? "#F1F3F5"
-                  : activeIsTutor
-                    ? "#111111"
-                    : "#007AFF",
-                transition: "color 180ms ease",
-              }}
-            >
-              Study
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onTabChange("solve")}
-            className={`relative z-10 flex h-[54px] flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px] ${
-              showTutorTab ? "mr-[-8px] w-[102px] shrink-0" : "min-w-0 flex-1"
-            }`}
-          >
-            <span className="relative h-[28px] w-[28px]">
-              <img
-                src={
-                  activeIsSolve
-                    ? `${ASSET}/tab-solve-active-dark-figma.svg`
-                    : showTutorTab
-                      ? `${ASSET}/tab-solve-inactive-b.png`
-                      : `${ASSET}/tab-solve-inactive-figma@3x.png`
-                }
-                alt=""
-                draggable={false}
-                className="absolute inset-0 h-full w-full object-contain"
-              />
-            </span>
-            <span
-              className="text-center text-[10px] font-semibold leading-[12px]"
-              style={{
-                color: activeIsSolve ? "#51A9FE" : "#111111",
-                transition: "color 180ms ease",
-              }}
-            >
-              Solve
-            </span>
-          </button>
-          {showTutorTab ? (
             <button
               type="button"
-              onClick={() => onTabChange("tutor")}
-              className="relative z-10 flex h-[54px] w-[102px] shrink-0 flex-col items-center justify-center gap-[2px] rounded-full border-0 bg-transparent px-[8px] py-[6px]"
+              onClick={() => onTabChange("study")}
+              className="relative flex h-[56px] min-w-0 flex-1 items-center justify-center border-0 bg-transparent p-0"
             >
-              <span className="relative h-[28px] w-[28px] shrink-0 overflow-hidden">
+              <span className="flex h-[56px] w-[56px] flex-col items-center gap-[2px] pt-[12px]">
                 <img
                   src={
-                    activeIsTutor
-                      ? `${ASSET}/tab-tutor-active.png`
-                      : activeIsSolve
-                        ? `${ASSET}/tab-tutor-inactive-dark.png`
-                      : `${ASSET}/tab-tutor-inactive.png`
+                    activeIsSolve
+                      ? `${ASSET}/tab-study-inactive-a-solve.svg`
+                      : `${ASSET}/tab-study-active-a.svg`
                   }
                   alt=""
                   draggable={false}
-                  className="absolute left-1/2 top-1/2 h-[24px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+                  className="h-[24px] w-[24px] object-contain"
                 />
+                <span
+                  className="w-[56px] text-center text-[10px] font-semibold leading-[12px]"
+                  style={{ color: activeIsSolve ? "#A4A6AB" : "#007AFF" }}
+                >
+                  Study
+                </span>
               </span>
-              <span
-                className="w-full text-center text-[10px] font-semibold leading-[12px]"
-                style={{
-                  color: activeIsTutor
-                    ? "#007AFF"
-                    : activeIsSolve
-                      ? "#F1F3F5"
-                      : "#111111",
-                }}
-              >
-                AI Tutor
-              </span>
-              <img
-                src={
-                  activeIsTutor
-                    ? `${ASSET}/tab-tutor-badge-active.png`
-                    : activeIsSolve
-                      ? `${ASSET}/tab-tutor-badge-dark.png`
-                    : `${ASSET}/tab-tutor-badge.png`
-                }
-                alt=""
-                draggable={false}
-                className="absolute left-[55.5px] top-px h-[13px] w-[21px]"
-              />
             </button>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          onClick={onToggleUpload}
-          className="absolute right-[16px] top-[-52px] h-[52px] w-[52px] overflow-hidden rounded-[100px] border-0 bg-[#007AFF] p-0 shadow-[0_8px_40px_rgba(0,0,0,0.14)] backdrop-blur-[6px]"
-          style={{
-            zIndex: uploadOpen ? 140 : 0,
-            opacity: showPlus && !uploadOpen ? 1 : 0,
-            pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
-            transform: showPlus && !uploadOpen ? "scale(1)" : "scale(0.72)",
-            transition: activeIsSolve
-              ? "none"
-              : showPlus && !uploadOpen
-              ? "opacity 140ms ease, transform 220ms cubic-bezier(0.32, 0.72, 0, 1)"
-              : "transform 120ms cubic-bezier(0.4, 0, 1, 1), opacity 90ms ease 70ms",
-            willChange: "transform, opacity",
-          }}
-          tabIndex={showPlus && !uploadOpen ? 0 : -1}
-        >
-          <img
-            src={`${ASSET}/plus@3x.png`}
-            alt=""
-            draggable={false}
-            className="absolute left-1/2 top-1/2 h-[28px] w-[28px] transition-transform duration-240 ease-out"
+            <button
+              type="button"
+              onClick={() => onTabChange("solve")}
+              className="relative flex h-[56px] min-w-0 flex-1 items-center justify-center border-0 bg-transparent p-0"
+            >
+              <span
+                className="flex h-[56px] flex-col items-center gap-[2px] pt-[12px]"
+                style={{ width: activeIsSolve ? 27 : 56 }}
+              >
+                <img
+                  src={
+                    activeIsSolve
+                      ? `${ASSET}/tab-solve-active-a.svg`
+                      : `${ASSET}/tab-solve-inactive-a.svg`
+                  }
+                  alt=""
+                  draggable={false}
+                  className="h-[24px] w-[24px] object-contain"
+                />
+                <span
+                  className="text-center text-[10px] font-medium leading-[12px]"
+                  style={{
+                    color: activeIsSolve ? "#51A9FE" : "#989B9E",
+                    width: activeIsSolve ? 27 : 56,
+                  }}
+                >
+                  Solve
+                </span>
+              </span>
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={onToggleUpload}
+            className="absolute right-[16px] top-[-74px] flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-[1000px] border border-white bg-[#FBFCFF] p-0 shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
             style={{
-              transform: "translate(-50%, -50%) rotate(0deg)",
+              zIndex: uploadOpen ? 140 : 0,
+              opacity: showPlus && !uploadOpen ? 1 : 0,
+              pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
+              transform: showPlus && !uploadOpen ? "scale(1)" : "scale(0.72)",
+              transition: "none",
+              willChange: "transform, opacity",
             }}
-          />
-          <div className="absolute inset-0 rounded-[inherit] shadow-[inset_1px_1px_0_#B3D7FF,inset_-1px_-1px_0_#B3D7FF]" />
-        </button>
-      </div>
-      <div className="relative h-[34px] w-full">
-        <div className="absolute bottom-[8px] left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-[#111111]" />
-      </div>
-    </>
+            tabIndex={showPlus && !uploadOpen ? 0 : -1}
+          >
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 28 28"
+              fill="none"
+              aria-hidden="true"
+              className="transition-transform duration-240 ease-out"
+            >
+              <path
+                d="M14 5.5V22.5M5.5 14H22.5"
+                stroke="#007AFF"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <div className="relative h-[34px] w-full shrink-0">
+            <div
+              className="absolute bottom-[8px] left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full"
+              style={{ background: activeIsSolve ? "#FFFFFF" : "#111111" }}
+            />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const bTabState = activeIsSolve
+    ? "solve"
+    : activeIsTutor
+      ? "tutor"
+      : "study";
+  const bTabbarImage =
+    bTabState === "solve"
+      ? `${ASSET}/b-tabbar-solve.svg`
+      : bTabState === "tutor"
+        ? `${ASSET}/b-tabbar-tutor.svg`
+        : `${ASSET}/b-tabbar-study.svg`;
+  const bTabbarHeight = bTabState === "solve" ? 104 : 155;
+
+  return (
+    <div
+      className="pointer-events-none relative w-full"
+      style={{
+        height: bTabbarHeight,
+        opacity: uploadOpen ? 0 : 1,
+        transform: "translate3d(0, 0, 0)",
+        transition: "opacity 120ms ease",
+        willChange: "opacity",
+      }}
+    >
+      <img
+        src={bTabbarImage}
+        alt=""
+        draggable={false}
+        className="pointer-events-none absolute bottom-0 left-1/2 w-[393px] -translate-x-1/2"
+        style={{ height: bTabbarHeight }}
+      />
+      <button
+        type="button"
+        aria-label="Study"
+        onClick={() => onTabChange("study")}
+        className="pointer-events-auto absolute bottom-[34px] left-0 h-[62px] w-[165.5px] border-0 bg-transparent p-0"
+      />
+      <button
+        type="button"
+        aria-label="Solve"
+        onClick={() => onTabChange("solve")}
+        className="pointer-events-auto absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] border-0 bg-transparent p-0"
+      />
+      <button
+        type="button"
+        aria-label="AI Tutor"
+        onClick={() => onTabChange("tutor")}
+        className="pointer-events-auto absolute bottom-[34px] left-[227.5px] h-[62px] w-[165.5px] border-0 bg-transparent p-0"
+      />
+    </div>
   );
 }
 
@@ -1159,15 +1142,17 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
                 </section>
               </div>
             </div>
-            <div
-              className="pointer-events-none absolute bottom-0 left-1/2 z-20 h-[160px] w-[393px] -translate-x-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_100%)] backdrop-blur-[4px]"
-              style={{
-                WebkitMaskImage:
-                  "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
-                maskImage:
-                  "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
-              }}
-            />
+            {!showTutorTab ? (
+              <div
+                className="pointer-events-none absolute bottom-0 left-1/2 z-20 h-[160px] w-[393px] -translate-x-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_100%)] backdrop-blur-[4px]"
+                style={{
+                  WebkitMaskImage:
+                    "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
+                  maskImage:
+                    "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
+                }}
+              />
+            ) : null}
             <HomeUploadMenu
               open={uploadOpen}
               onClose={() => setUploadOpen(false)}
