@@ -883,9 +883,7 @@ function HomeExperimentBBottomBar({
         ? `${ASSET}/b-tabbar-tutor-bg.svg`
         : `${ASSET}/b-tabbar-study-bg.svg`;
   const solveButtonImage =
-    activeTab === "solve"
-      ? `${ASSET}/b-solve-button-solve.svg`
-      : activeTab === "tutor"
+    activeTab === "tutor"
         ? `${ASSET}/b-solve-button-tutor.svg`
         : `${ASSET}/b-solve-button-study.svg`;
   const tabbarHeight = activeTab === "solve" ? 104 : 155;
@@ -908,16 +906,29 @@ function HomeExperimentBBottomBar({
           className="pointer-events-none absolute bottom-0 left-1/2 w-[393px] -translate-x-1/2"
           style={{ height: tabbarHeight }}
         />
-        <img
-          src={solveButtonImage}
-          alt=""
-          draggable={false}
-          className="pointer-events-none absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] transition-transform duration-150 ease-out"
-          style={{
-            transform: solvePressed ? "scale(0.9)" : "scale(1)",
-            transformOrigin: "center",
-          }}
-        />
+        {activeTab === "solve" ? (
+          <img
+            src={`${ASSET}/b-solve-button-active-border.svg`}
+            alt=""
+            draggable={false}
+            className="pointer-events-none absolute bottom-[30px] left-[161px] h-[70px] w-[70px] transition-transform duration-150 ease-out"
+            style={{
+              transform: solvePressed ? "scale(0.9)" : "scale(1)",
+              transformOrigin: "center",
+            }}
+          />
+        ) : (
+          <img
+            src={solveButtonImage}
+            alt=""
+            draggable={false}
+            className="pointer-events-none absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] transition-transform duration-150 ease-out"
+            style={{
+              transform: solvePressed ? "scale(0.9)" : "scale(1)",
+              transformOrigin: "center",
+            }}
+          />
+        )}
         <button
           type="button"
           aria-label="Study"
@@ -1393,8 +1404,8 @@ function HomeExperimentBPreview() {
             style={{
               animation:
                 solveSheetPhase === "closing"
-                  ? "home-v2-solve-sheet-exit 420ms cubic-bezier(0.32, 0.72, 0, 1) both"
-                  : "home-v2-solve-sheet-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both",
+                  ? "home-v2-solve-sheet-exit 500ms cubic-bezier(0.32, 0.72, 0, 1) both"
+                  : "home-v2-solve-sheet-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
               willChange: "transform, opacity",
             }}
           >
