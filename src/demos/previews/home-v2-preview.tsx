@@ -9,6 +9,7 @@ import { TutorPreview } from "./tutor-preview";
 
 export type HomeExperimentVariant = "experiment-a" | "experiment-b";
 type HomeV2Tab = "study" | "solve" | "tutor";
+type HomeV2MainTab = "study" | "tutor";
 
 const ASSET = "/figma/home-v2";
 const SOLVE_CAPTURE_TABBAR_SPACER_H = 77;
@@ -495,26 +496,23 @@ function VersionThreeHeader() {
   );
 }
 
-const UPLOAD_MENU_ITEMS = [
-  { label: "Record", icon: `${ASSET}/menu-record@3x.png` },
-  { label: "Camera", icon: `${ASSET}/menu-camera@3x.png` },
-  { label: "Photos", icon: `${ASSET}/menu-photos@3x.png` },
-  { label: "File upload", icon: `${ASSET}/menu-file-upload@3x.png` },
-  { label: "Text", icon: `${ASSET}/menu-text@3x.png` },
-  { label: "Link", icon: `${ASSET}/menu-link@3x.png` },
-] as const;
-
-function VersionOneTopStudyActions() {
+function VersionOneTopStudyActions({ onSnapSolve }: { onSnapSolve?: () => void }) {
   return (
     <div className="flex w-full items-center gap-[8px]">
+      <button
+        type="button"
+        onClick={onSnapSolve}
+        className="min-w-0 flex-1 border-0 bg-transparent p-0"
+      >
+        <img
+          src={`${ASSET}/top-card-snap-solve-3x.png`}
+          alt=""
+          draggable={false}
+          className="block h-[120px] w-full rounded-[20px] object-contain"
+        />
+      </button>
       <img
-        src={`${ASSET}/top-card-snap-solve@3x.png`}
-        alt=""
-        draggable={false}
-        className="block h-[120px] min-w-0 flex-1 rounded-[20px] object-contain"
-      />
-      <img
-        src={`${ASSET}/top-card-record@3x.png`}
+        src={`${ASSET}/top-card-record-3x.png`}
         alt=""
         draggable={false}
         className="block h-[120px] w-[150px] shrink-0 rounded-[20px] object-contain"
@@ -570,13 +568,13 @@ function VersionThreeTopStudyActions() {
   return (
     <div className="flex w-full items-center gap-[8px]">
       <img
-        src={`${ASSET}/top-card-snap-solve@3x.png`}
+        src={`${ASSET}/top-card-snap-solve-3x.png`}
         alt=""
         draggable={false}
         className="block h-[120px] min-w-0 flex-1 rounded-[20px] object-contain"
       />
       <img
-        src={`${ASSET}/top-card-record@3x.png`}
+        src={`${ASSET}/top-card-record-3x.png`}
         alt=""
         draggable={false}
         className="block h-[120px] w-[150px] shrink-0 rounded-[20px] object-contain"
@@ -592,16 +590,78 @@ function HomeUploadMenu({
   open: boolean;
   onClose: () => void;
 }) {
+  const [rendered, setRendered] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      return;
+    }
+
+    if (!rendered) return;
+
+    const timeout = window.setTimeout(() => {
+      setRendered(false);
+    }, 420);
+
+    return () => window.clearTimeout(timeout);
+  }, [open, rendered]);
+
+  if (!open && !rendered) return null;
+
+  const closing = !open && rendered;
+
   return (
     <div
-      className={`absolute inset-0 z-[160] ${
+      className={`absolute inset-0 z-[300] ${
         open ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
+      <style>
+        {`
+          @keyframes home-v2-upload-mask-enter {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 0.5;
+            }
+          }
+
+          @keyframes home-v2-upload-mask-exit {
+            from {
+              opacity: 0.5;
+            }
+            to {
+              opacity: 0;
+            }
+          }
+
+          @keyframes home-v2-upload-sheet-enter {
+            from {
+              transform: translateY(100%);
+            }
+            to {
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes home-v2-upload-sheet-exit {
+            from {
+              transform: translateY(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+          }
+        `}
+      </style>
       <button
         type="button"
         aria-label="Close upload menu"
-        className="absolute inset-0 border-0 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.9)_50%,#FFFFFF_100%)] p-0 backdrop-blur-[8px]"
+        className="absolute inset-0 border-0 bg-black p-0"
         onClick={(event) => {
           event.stopPropagation();
           onClose();
@@ -611,44 +671,29 @@ function HomeUploadMenu({
         }}
         tabIndex={-1}
         style={{
-          opacity: open ? 1 : 0,
-          transitionProperty: "opacity",
-          transitionDuration: "160ms",
-          transitionTimingFunction: "ease-out",
-          transitionDelay: open ? "20ms" : "0ms",
+          animation: closing
+            ? "home-v2-upload-mask-exit 120ms ease-out both"
+            : "home-v2-upload-mask-enter 140ms ease-out both",
           willChange: "opacity",
           transform: "translateZ(0)",
         }}
       />
-      <div className="pointer-events-none absolute bottom-[110px] right-[16px] flex w-[181px] flex-col items-end gap-[4px]">
-        {UPLOAD_MENU_ITEMS.map((item, index) => (
-          <div
-            key={item.label}
-            className="flex h-[64px] w-[181px] items-center justify-between rounded-full py-[8px] pl-[16px] pr-[8px]"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open
-                ? "translateY(0)"
-                : "translateY(32px)",
-              transitionProperty: "opacity, transform",
-              transitionDuration: open ? "180ms, 260ms" : "80ms, 120ms",
-              transitionTimingFunction: open
-                ? "ease, cubic-bezier(0.34, 1.42, 0.64, 1)"
-                : "ease, cubic-bezier(0.4, 0, 1, 1)",
-              transitionDelay: open ? `${index * 26}ms` : "0ms",
-            }}
-          >
-            <span className="text-center text-[16px] font-semibold leading-[16px] text-[#111111]">
-              {item.label}
-            </span>
-            <img
-              src={item.icon}
-              alt=""
-              draggable={false}
-              className="h-[48px] w-[48px]"
-            />
-          </div>
-        ))}
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 h-[545px] w-full overflow-hidden rounded-t-[30px] bg-[#F6F8FA]"
+        style={{
+          opacity: open ? 1 : 0,
+          animation: closing
+            ? "home-v2-upload-sheet-exit 420ms cubic-bezier(0.32, 0.72, 0, 1) both"
+            : "home-v2-upload-sheet-enter 420ms cubic-bezier(0.32, 0.72, 0, 1) 70ms both",
+          willChange: "transform, opacity",
+        }}
+      >
+        <img
+          src={`${ASSET}/upload-bottom-sheet.svg`}
+          alt=""
+          draggable={false}
+          className="absolute left-0 top-0 h-[545px] w-full"
+        />
       </div>
     </div>
   );
@@ -696,6 +741,7 @@ function HomeV2BottomBarContent({
   const showPlus = activeTab === "study";
   const activeIsSolve = activeTab === "solve";
   const activeIsTutor = activeTab === "tutor";
+  const [bSolvePressed, setBSolvePressed] = useState(false);
 
   if (!showTutorTab) {
     return (
@@ -709,7 +755,7 @@ function HomeV2BottomBarContent({
               : "inset 0px 1px 0px #F6F8FA",
             backdropFilter: activeIsSolve ? "blur(10px)" : undefined,
             WebkitBackdropFilter: activeIsSolve ? "blur(10px)" : undefined,
-            opacity: uploadOpen ? 0 : 1,
+            opacity: 1,
             transform: "translate3d(0, 0, 0)",
             transition: "none",
             willChange: "opacity",
@@ -774,37 +820,31 @@ function HomeV2BottomBarContent({
               </span>
             </button>
           </div>
-          <button
-            type="button"
-            onClick={onToggleUpload}
-            className="absolute right-[16px] top-[-74px] flex h-[52px] w-[52px] items-center justify-center overflow-hidden rounded-[1000px] border border-white bg-[#FBFCFF] p-0 shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
+          <div
+            className="pointer-events-none absolute right-0 top-[-102px] h-[132px] w-[108px]"
             style={{
-              zIndex: uploadOpen ? 140 : 0,
-              opacity: showPlus && !uploadOpen ? 1 : 0,
-              pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
-              transform: showPlus && !uploadOpen ? "scale(1)" : "scale(0.72)",
-              transition: "none",
+              zIndex: 0,
+              opacity: showPlus ? 1 : 0,
               willChange: "transform, opacity",
             }}
-            tabIndex={showPlus && !uploadOpen ? 0 : -1}
           >
-            <svg
-              width="26"
-              height="26"
-              viewBox="0 0 28 28"
-              fill="none"
-              aria-hidden="true"
-              className="transition-transform duration-240 ease-out"
-            >
-              <path
-                d="M14 5.5V22.5M5.5 14H22.5"
-                stroke="#007AFF"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+            <img
+              src={`${ASSET}/add-button-full.svg`}
+              alt=""
+              draggable={false}
+              className="pointer-events-none h-[132px] w-[108px]"
+            />
+            <button
+              type="button"
+              onClick={onToggleUpload}
+              aria-label="Open upload menu"
+              className="pointer-events-auto absolute left-[40px] top-[28px] h-[52px] w-[52px] rounded-full border-0 bg-transparent p-0 transition-transform duration-100 ease-out active:scale-90"
+              style={{
+                pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
+              }}
+              tabIndex={showPlus && !uploadOpen ? 0 : -1}
+            />
+          </div>
           <div className="relative h-[34px] w-full shrink-0">
             <div
               className="absolute bottom-[8px] left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full"
@@ -816,55 +856,134 @@ function HomeV2BottomBarContent({
     );
   }
 
-  const bTabState = activeIsSolve
-    ? "solve"
-    : activeIsTutor
-      ? "tutor"
-      : "study";
-  const bTabbarImage =
-    bTabState === "solve"
-      ? `${ASSET}/b-tabbar-solve.svg`
-      : bTabState === "tutor"
-        ? `${ASSET}/b-tabbar-tutor.svg`
-        : `${ASSET}/b-tabbar-study.svg`;
-  const bTabbarHeight = bTabState === "solve" ? 104 : 155;
+  return null;
+}
+
+function HomeExperimentBBottomBar({
+  activeTab,
+  uploadOpen,
+  onStudy,
+  onSolve,
+  onTutor,
+  onToggleUpload,
+}: {
+  activeTab: HomeV2Tab;
+  uploadOpen: boolean;
+  onStudy: () => void;
+  onSolve: () => void;
+  onTutor: () => void;
+  onToggleUpload: () => void;
+}) {
+  const [solvePressed, setSolvePressed] = useState(false);
+  const showPlus = activeTab === "study";
+  const tabbarImage =
+    activeTab === "solve"
+      ? `${ASSET}/b-tabbar-solve-bg.svg`
+      : activeTab === "tutor"
+        ? `${ASSET}/b-tabbar-tutor-bg.svg`
+        : `${ASSET}/b-tabbar-study-bg.svg`;
+  const solveButtonImage =
+    activeTab === "solve"
+      ? `${ASSET}/b-solve-button-solve.svg`
+      : activeTab === "tutor"
+        ? `${ASSET}/b-solve-button-tutor.svg`
+        : `${ASSET}/b-solve-button-study.svg`;
+  const tabbarHeight = activeTab === "solve" ? 104 : 155;
 
   return (
-    <div
-      className="pointer-events-none relative w-full"
-      style={{
-        height: bTabbarHeight,
-        opacity: uploadOpen ? 0 : 1,
-        transform: "translate3d(0, 0, 0)",
-        transition: "opacity 120ms ease",
-        willChange: "opacity",
-      }}
-    >
-      <img
-        src={bTabbarImage}
-        alt=""
-        draggable={false}
-        className="pointer-events-none absolute bottom-0 left-1/2 w-[393px] -translate-x-1/2"
-        style={{ height: bTabbarHeight }}
-      />
-      <button
-        type="button"
-        aria-label="Study"
-        onClick={() => onTabChange("study")}
-        className="pointer-events-auto absolute bottom-[34px] left-0 h-[62px] w-[165.5px] border-0 bg-transparent p-0"
-      />
-      <button
-        type="button"
-        aria-label="Solve"
-        onClick={() => onTabChange("solve")}
-        className="pointer-events-auto absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] border-0 bg-transparent p-0"
-      />
-      <button
-        type="button"
-        aria-label="AI Tutor"
-        onClick={() => onTabChange("tutor")}
-        className="pointer-events-auto absolute bottom-[34px] left-[227.5px] h-[62px] w-[165.5px] border-0 bg-transparent p-0"
-      />
+    <div className="absolute bottom-0 left-0 z-[130] flex w-full flex-col items-start">
+      <div
+        className="pointer-events-none relative w-full"
+        style={{
+          height: tabbarHeight,
+          opacity: 1,
+          transform: "translate3d(0, 0, 0)",
+          willChange: "opacity",
+        }}
+      >
+        <img
+          src={tabbarImage}
+          alt=""
+          draggable={false}
+          className="pointer-events-none absolute bottom-0 left-1/2 w-[393px] -translate-x-1/2"
+          style={{ height: tabbarHeight }}
+        />
+        <img
+          src={solveButtonImage}
+          alt=""
+          draggable={false}
+          className="pointer-events-none absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] transition-transform duration-150 ease-out"
+          style={{
+            transform: solvePressed ? "scale(0.9)" : "scale(1)",
+            transformOrigin: "center",
+          }}
+        />
+        <button
+          type="button"
+          aria-label="Study"
+          onPointerDownCapture={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onStudy();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          className="pointer-events-auto absolute bottom-[34px] left-0 h-[62px] w-[165.5px] border-0 bg-transparent p-0"
+        />
+        <button
+          type="button"
+          aria-label="Solve"
+          onPointerDown={() => setSolvePressed(true)}
+          onPointerUp={() => setSolvePressed(false)}
+          onPointerCancel={() => setSolvePressed(false)}
+          onPointerLeave={() => setSolvePressed(false)}
+          onClick={() => {
+            setSolvePressed(false);
+            onSolve();
+          }}
+          className="pointer-events-auto absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] border-0 bg-transparent p-0"
+        />
+        <button
+          type="button"
+          aria-label="AI Tutor"
+          onPointerDownCapture={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onTutor();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          className="pointer-events-auto absolute bottom-[34px] left-[282px] h-[62px] w-[64px] border-0 bg-transparent p-0"
+        />
+        <div
+          className="pointer-events-none absolute right-0 top-[-37px] h-[132px] w-[108px]"
+          style={{
+            opacity: showPlus ? 1 : 0,
+            willChange: "transform, opacity",
+          }}
+        >
+          <img
+            src={`${ASSET}/add-button-full.svg`}
+            alt=""
+            draggable={false}
+            className="pointer-events-none h-[132px] w-[108px]"
+          />
+          <button
+            type="button"
+            onClick={onToggleUpload}
+            aria-label="Open upload menu"
+            className="pointer-events-auto absolute left-[40px] top-[28px] h-[52px] w-[52px] rounded-full border-0 bg-transparent p-0 transition-transform duration-100 ease-out active:scale-90"
+            style={{
+              pointerEvents: showPlus && !uploadOpen ? "auto" : "none",
+            }}
+            tabIndex={showPlus && !uploadOpen ? 0 : -1}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -1064,39 +1183,80 @@ export function HomeV2Preview({
   return <HomeVersionOnePreview showTutorTab={experiment === "experiment-b"} />;
 }
 
+function HomeStudyLayer({
+  uploadOpen,
+  onCloseUpload,
+  onSnapSolve,
+  showTutorTab = false,
+}: {
+  uploadOpen: boolean;
+  onCloseUpload: () => void;
+  onSnapSolve?: () => void;
+  showTutorTab?: boolean;
+}) {
+  return (
+    <>
+      <VersionOneHeader />
+      <div className="phone-scrollbar-hidden absolute inset-x-0 bottom-0 top-[110px] overflow-y-auto pb-[160px]">
+        <div className="flex w-full flex-col items-start gap-[24px] px-[20px] py-[8px]">
+          <VersionOneTopStudyActions onSnapSolve={onSnapSolve} />
+
+          <VersionOneCreateStudySetSection />
+
+          <section className="flex w-full flex-col items-start gap-[12px]">
+            <div className="flex w-full items-center justify-between">
+              <h2 className="m-0 font-[var(--font-poppins)] text-[18px] font-semibold leading-[1.3] text-[#111111]">
+                All study sets
+              </h2>
+              <div className="flex items-center gap-[6px] text-[14px] font-medium leading-[24px] text-[#595C60]">
+                <span>Recent</span>
+                <img src={`${ASSET}/sort.svg`} alt="" draggable={false} className="h-[20px] w-[20px]" />
+              </div>
+            </div>
+            <div className="flex w-full flex-col gap-[8px]">
+              {STUDY_SETS.map((item, index) => (
+                <StudySetRow key={`${item.title}-${index}`} item={item} />
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+      {!showTutorTab ? (
+        <div
+          className="pointer-events-none absolute bottom-0 left-1/2 z-20 h-[160px] w-[393px] -translate-x-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_100%)] backdrop-blur-[4px]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
+            maskImage:
+              "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
+          }}
+        />
+      ) : null}
+      <HomeUploadMenu open={uploadOpen} onClose={onCloseUpload} />
+    </>
+  );
+}
+
 function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolean }) {
+  return showTutorTab ? <HomeExperimentBPreview /> : <HomeExperimentAPreview />;
+}
+
+function HomeExperimentAPreview() {
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<HomeV2Tab>("study");
-  const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
-  const hideHomeTabBar =
-    showTutorTab && activeTab === "tutor" && tutorSubpageVisible;
-
-  useEffect(() => {
-    if (!showTutorTab && activeTab === "tutor") {
-      setActiveTab("study");
-      setUploadOpen(false);
-    }
-  }, [showTutorTab, activeTab]);
-
-  useEffect(() => {
-    if (activeTab !== "tutor") {
-      setTutorSubpageVisible(false);
-    }
-  }, [activeTab]);
+  const [activeTab, setActiveTab] = useState<"study" | "solve">("study");
+  const canvasBackground = activeTab === "solve" ? "#FFFFFF" : "#F6F8FA";
 
   const changeTab = (tab: HomeV2Tab) => {
+    if (tab === "tutor") return;
     setActiveTab(tab);
     setUploadOpen(false);
   };
 
   return (
-    <DemoCanvas
-      mode="fill"
-      background={activeTab === "solve" ? "#FFFFFF" : "#F6F8FA"}
-    >
+    <DemoCanvas mode="fill" background={canvasBackground}>
       <div
         className="absolute inset-0 select-none overflow-hidden"
-        style={{ background: activeTab === "solve" ? "#FFFFFF" : "#F6F8FA" }}
+        style={{ background: canvasBackground }}
       >
         {activeTab === "solve" ? (
           <HomePreview
@@ -1109,63 +1269,172 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
               />
             }
           />
-        ) : activeTab === "tutor" && showTutorTab ? (
-          <TutorPreview
-            embedded
-            hideBottomNav
-            onSubpageVisibilityChange={setTutorSubpageVisible}
-          />
         ) : (
-          <>
-            <VersionOneHeader />
-            <div className="phone-scrollbar-hidden absolute inset-x-0 bottom-0 top-[110px] overflow-y-auto pb-[160px]">
-              <div className="flex w-full flex-col items-start gap-[24px] px-[20px] py-[8px]">
-                <VersionOneTopStudyActions />
-
-                <VersionOneCreateStudySetSection />
-
-                <section className="flex w-full flex-col items-start gap-[12px]">
-                  <div className="flex w-full items-center justify-between">
-                    <h2 className="m-0 font-[var(--font-poppins)] text-[18px] font-semibold leading-[1.3] text-[#111111]">
-                      All study sets
-                    </h2>
-                    <div className="flex items-center gap-[6px] text-[14px] font-medium leading-[24px] text-[#595C60]">
-                      <span>Recent</span>
-                      <img src={`${ASSET}/sort.svg`} alt="" draggable={false} className="h-[20px] w-[20px]" />
-                    </div>
-                  </div>
-                  <div className="flex w-full flex-col gap-[8px]">
-                    {STUDY_SETS.map((item, index) => (
-                      <StudySetRow key={`${item.title}-${index}`} item={item} />
-                    ))}
-                  </div>
-                </section>
-              </div>
-            </div>
-            {!showTutorTab ? (
-              <div
-                className="pointer-events-none absolute bottom-0 left-1/2 z-20 h-[160px] w-[393px] -translate-x-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.8)_100%)] backdrop-blur-[4px]"
-                style={{
-                  WebkitMaskImage:
-                    "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
-                  maskImage:
-                    "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.18) 28%, rgba(0,0,0,0.58) 62%, black 100%)",
-                }}
-              />
-            ) : null}
-            <HomeUploadMenu
-              open={uploadOpen}
-              onClose={() => setUploadOpen(false)}
-            />
-          </>
-        )}
-        {!hideHomeTabBar ? (
-          <HomeV2BottomBar
-            activeTab={activeTab}
-            onTabChange={changeTab}
+          <HomeStudyLayer
             uploadOpen={uploadOpen}
+            onCloseUpload={() => setUploadOpen(false)}
+            onSnapSolve={() => changeTab("solve")}
+          />
+        )}
+        <HomeV2BottomBar
+          activeTab={activeTab}
+          onTabChange={changeTab}
+          uploadOpen={uploadOpen}
+          onToggleUpload={() => setUploadOpen((open) => !open)}
+        />
+      </div>
+    </DemoCanvas>
+  );
+}
+
+function HomeExperimentBPreview() {
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<HomeV2MainTab>("study");
+  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open" | "closing">("idle");
+  const solveSheetTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
+
+  useEffect(() => {
+    if (activeTab !== "tutor") {
+      setTutorSubpageVisible(false);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      if (solveSheetTimeoutRef.current) {
+        window.clearTimeout(solveSheetTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const switchTab = (tab: HomeV2MainTab) => {
+    if (solveSheetTimeoutRef.current) {
+      window.clearTimeout(solveSheetTimeoutRef.current);
+      solveSheetTimeoutRef.current = null;
+    }
+    setActiveTab(tab);
+    setSolveSheetPhase("idle");
+    setUploadOpen(false);
+  };
+
+  const openSolveSheet = () => {
+    if (solveSheetTimeoutRef.current) {
+      window.clearTimeout(solveSheetTimeoutRef.current);
+      solveSheetTimeoutRef.current = null;
+    }
+    setSolveSheetPhase("open");
+    setUploadOpen(false);
+  };
+
+  const closeSolveSheet = () => {
+    if (solveSheetPhase !== "open") return;
+    setSolveSheetPhase("closing");
+    solveSheetTimeoutRef.current = window.setTimeout(() => {
+      setSolveSheetPhase("idle");
+      solveSheetTimeoutRef.current = null;
+    }, 420);
+  };
+
+  const hideHomeTabBar = activeTab === "tutor" && tutorSubpageVisible;
+  const canvasBackground = "#F6F8FA";
+  const content =
+    activeTab === "tutor" ? (
+      <TutorPreview
+        embedded
+        hideBottomNav
+        onSubpageVisibilityChange={setTutorSubpageVisible}
+      />
+    ) : (
+      <HomeStudyLayer
+        uploadOpen={uploadOpen}
+        onCloseUpload={() => setUploadOpen(false)}
+        onSnapSolve={openSolveSheet}
+        showTutorTab
+      />
+    );
+  const solveSheetVisible = solveSheetPhase !== "idle";
+  const bottomBarActiveTab: HomeV2Tab =
+    solveSheetPhase === "open" ? "solve" : activeTab;
+
+  return (
+    <DemoCanvas mode="fill" background={canvasBackground}>
+      <div
+        className="absolute inset-0 select-none overflow-hidden"
+        style={{ background: canvasBackground }}
+      >
+        <style>
+          {`
+            @keyframes home-v2-solve-sheet-enter {
+              from {
+                transform: translateY(100%);
+              }
+              to {
+                transform: translateY(0);
+              }
+            }
+
+            @keyframes home-v2-solve-sheet-exit {
+              from {
+                transform: translateY(0);
+                opacity: 1;
+              }
+              to {
+                transform: translateY(100%);
+                opacity: 0;
+              }
+            }
+          `}
+        </style>
+        {content}
+        {solveSheetVisible ? (
+          <div
+            className="absolute inset-0 z-[60]"
+            style={{
+              animation:
+                solveSheetPhase === "closing"
+                  ? "home-v2-solve-sheet-exit 420ms cubic-bezier(0.32, 0.72, 0, 1) both"
+                  : "home-v2-solve-sheet-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both",
+              willChange: "transform, opacity",
+            }}
+          >
+            <HomePreview
+              hideGuidedPopover
+              showModeSegment={false}
+              toolbarLeft={
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    aria-label="Close solve"
+                    onClick={closeSolveSheet}
+                    className="h-[32px] w-[32px] border-0 bg-transparent p-0"
+                  >
+                    <img
+                      src={`${ASSET}/solve-sheet-close.svg`}
+                      alt=""
+                      draggable={false}
+                      className="h-[32px] w-[32px]"
+                    />
+                  </button>
+                </div>
+              }
+              bottomBar={
+                <div
+                  aria-hidden="true"
+                  style={{ height: SOLVE_CAPTURE_TABBAR_SPACER_H }}
+                />
+              }
+            />
+          </div>
+        ) : null}
+        {!hideHomeTabBar ? (
+          <HomeExperimentBBottomBar
+            activeTab={bottomBarActiveTab}
+            uploadOpen={uploadOpen}
+            onStudy={() => switchTab("study")}
+            onSolve={openSolveSheet}
+            onTutor={() => switchTab("tutor")}
             onToggleUpload={() => setUploadOpen((open) => !open)}
-            showTutorTab={showTutorTab}
           />
         ) : null}
       </div>

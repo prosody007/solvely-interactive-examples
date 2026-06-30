@@ -22,10 +22,12 @@ export function HomePreview({
   hideGuidedPopover = false,
   showModeSegment = true,
   bottomBar,
+  toolbarLeft,
 }: {
   hideGuidedPopover?: boolean;
   showModeSegment?: boolean;
   bottomBar?: ReactNode;
+  toolbarLeft?: ReactNode;
 } = {}) {
   const useEmbeddedSolveLayout = hideGuidedPopover && !showModeSegment;
   const [active, setActive] = useState(0);
@@ -95,36 +97,38 @@ export function HomePreview({
           paddingBottom: 8,
         }}
       >
-        <div className="flex items-center" style={{ gap: 24 }}>
-          <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 24,
-                height: 24,
-                border: "2px dashed #FFFFFF",
-                borderRadius: 6,
-              }}
-            />
+        {toolbarLeft ?? (
+          <div className="flex items-center" style={{ gap: 24 }}>
+            <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 24,
+                  height: 24,
+                  border: "2px dashed #FFFFFF",
+                  borderRadius: 6,
+                }}
+              />
+            </div>
+            <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 24,
+                  height: 24,
+                  border: "2px dashed #FFFFFF",
+                  borderRadius: 6,
+                }}
+              />
+            </div>
           </div>
-          <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 24,
-                height: 24,
-                border: "2px dashed #FFFFFF",
-                borderRadius: 6,
-              }}
-            />
-          </div>
-        </div>
+        )}
 
         <div className="flex items-center" style={{ gap: 24 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
