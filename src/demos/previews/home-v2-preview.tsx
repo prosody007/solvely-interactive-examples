@@ -1291,7 +1291,7 @@ function HomeExperimentBPreview() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2MainTab>("study");
   const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open" | "closing">("idle");
-  const solveSheetTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const solveSheetTimeoutRef = useRef<number | null>(null);
   const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
 
   useEffect(() => {
