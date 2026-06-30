@@ -1301,8 +1301,7 @@ function HomeExperimentAPreview() {
 function HomeExperimentBPreview() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2MainTab>("study");
-  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open" | "closing">("idle");
-  const solveSheetTimeoutRef = useRef<number | null>(null);
+  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open">("idle");
   const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
 
   useEffect(() => {
@@ -1311,40 +1310,15 @@ function HomeExperimentBPreview() {
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    return () => {
-      if (solveSheetTimeoutRef.current) {
-        window.clearTimeout(solveSheetTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const switchTab = (tab: HomeV2MainTab) => {
-    if (solveSheetTimeoutRef.current) {
-      window.clearTimeout(solveSheetTimeoutRef.current);
-      solveSheetTimeoutRef.current = null;
-    }
     setActiveTab(tab);
     setSolveSheetPhase("idle");
     setUploadOpen(false);
   };
 
   const openSolveSheet = () => {
-    if (solveSheetTimeoutRef.current) {
-      window.clearTimeout(solveSheetTimeoutRef.current);
-      solveSheetTimeoutRef.current = null;
-    }
     setSolveSheetPhase("open");
     setUploadOpen(false);
-  };
-
-  const closeSolveSheet = () => {
-    if (solveSheetPhase !== "open") return;
-    setSolveSheetPhase("closing");
-    solveSheetTimeoutRef.current = window.setTimeout(() => {
-      setSolveSheetPhase("idle");
-      solveSheetTimeoutRef.current = null;
-    }, 420);
   };
 
   const hideHomeTabBar = activeTab === "tutor" && tutorSubpageVisible;
@@ -1385,16 +1359,6 @@ function HomeExperimentBPreview() {
               }
             }
 
-            @keyframes home-v2-solve-sheet-exit {
-              from {
-                transform: translateY(0);
-                opacity: 1;
-              }
-              to {
-                transform: translateY(100%);
-                opacity: 0;
-              }
-            }
           `}
         </style>
         {content}
@@ -1403,32 +1367,13 @@ function HomeExperimentBPreview() {
             className="absolute inset-0 z-[60]"
             style={{
               animation:
-                solveSheetPhase === "closing"
-                  ? "home-v2-solve-sheet-exit 500ms cubic-bezier(0.32, 0.72, 0, 1) both"
-                  : "home-v2-solve-sheet-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
+                "home-v2-solve-sheet-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
               willChange: "transform, opacity",
             }}
           >
             <HomePreview
               hideGuidedPopover
               showModeSegment={false}
-              toolbarLeft={
-                <div className="flex items-center">
-                  <button
-                    type="button"
-                    aria-label="Close solve"
-                    onClick={closeSolveSheet}
-                    className="h-[32px] w-[32px] border-0 bg-transparent p-0"
-                  >
-                    <img
-                      src={`${ASSET}/solve-sheet-close.svg`}
-                      alt=""
-                      draggable={false}
-                      className="h-[32px] w-[32px]"
-                    />
-                  </button>
-                </div>
-              }
               bottomBar={
                 <div
                   aria-hidden="true"
