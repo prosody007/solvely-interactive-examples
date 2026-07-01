@@ -859,6 +859,64 @@ function HomeV2BottomBarContent({
   return null;
 }
 
+function PhotoLottieIcon({ playKey }: { playKey: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<{
+    destroy: () => void;
+    goToAndPlay: (value: number, isFrame?: boolean) => void;
+    goToAndStop: (value: number, isFrame?: boolean) => void;
+    setSpeed: (speed: number) => void;
+  } | null>(null);
+  const latestPlayKeyRef = useRef(playKey);
+
+  useEffect(() => {
+    latestPlayKeyRef.current = playKey;
+  }, [playKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    import("lottie-web").then((lottie) => {
+      if (cancelled || !containerRef.current) return;
+
+      const animation = lottie.default.loadAnimation({
+        container: containerRef.current,
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        path: `${ASSET}/photo3.json`,
+      });
+
+      animationRef.current = animation;
+      animation.setSpeed(1.4);
+
+      if (latestPlayKeyRef.current > 0) {
+        animation.goToAndPlay(0, true);
+      } else {
+        animation.goToAndStop(0, true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      animationRef.current?.destroy();
+      animationRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (playKey <= 0) return;
+    animationRef.current?.goToAndPlay(0, true);
+  }, [playKey]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="pointer-events-none absolute left-1/2 top-1/2 h-[52px] w-[52px] -translate-x-1/2 -translate-y-1/2"
+    />
+  );
+}
+
 function HomeExperimentBBottomBar({
   activeTab,
   uploadOpen,
@@ -875,6 +933,7 @@ function HomeExperimentBBottomBar({
   onToggleUpload: () => void;
 }) {
   const [solvePressed, setSolvePressed] = useState(false);
+  const [photoLottiePlayKey, setPhotoLottiePlayKey] = useState(0);
   const showPlus = activeTab === "study";
   const tabbarImage =
     activeTab === "solve"
@@ -882,10 +941,6 @@ function HomeExperimentBBottomBar({
       : activeTab === "tutor"
         ? `${ASSET}/b-tabbar-tutor-bg.svg`
         : `${ASSET}/b-tabbar-study-bg.svg`;
-  const solveButtonImage =
-    activeTab === "tutor"
-        ? `${ASSET}/b-solve-button-tutor.svg`
-        : `${ASSET}/b-solve-button-study.svg`;
   const tabbarHeight = activeTab === "solve" ? 104 : 155;
 
   return (
@@ -906,29 +961,50 @@ function HomeExperimentBBottomBar({
           className="pointer-events-none absolute bottom-0 left-1/2 w-[393px] -translate-x-1/2"
           style={{ height: tabbarHeight }}
         />
-        {activeTab === "solve" ? (
+        <div
+          className="pointer-events-none absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] transition-transform duration-150 ease-out"
+          style={{
+            transform: solvePressed ? "scale(0.9)" : "scale(1)",
+            transformOrigin: "center",
+          }}
+        >
+          {activeTab === "solve" ? (
+            <svg
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[-4.5px] top-[-4px] h-[70px] w-[70px]"
+              viewBox="0 0 70 70"
+              fill="none"
+            >
+              <defs>
+                <linearGradient
+                  id="home-v2-photo-button-ring"
+                  x1="35"
+                  y1="0"
+                  x2="35"
+                  y2="70"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stopColor="#4DA2FF" />
+                  <stop offset="1" stopColor="#82BEFF" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="35"
+                cy="35"
+                r="34"
+                stroke="url(#home-v2-photo-button-ring)"
+                strokeWidth="2"
+              />
+            </svg>
+          ) : null}
           <img
-            src={`${ASSET}/b-solve-button-active-border.svg`}
+            src={`${ASSET}/b-photo-button-bg.svg`}
             alt=""
             draggable={false}
-            className="pointer-events-none absolute bottom-[30px] left-[161px] h-[70px] w-[70px] transition-transform duration-150 ease-out"
-            style={{
-              transform: solvePressed ? "scale(0.9)" : "scale(1)",
-              transformOrigin: "center",
-            }}
+            className="pointer-events-none absolute inset-0 h-[62px] w-[62px]"
           />
-        ) : (
-          <img
-            src={solveButtonImage}
-            alt=""
-            draggable={false}
-            className="pointer-events-none absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] transition-transform duration-150 ease-out"
-            style={{
-              transform: solvePressed ? "scale(0.9)" : "scale(1)",
-              transformOrigin: "center",
-            }}
-          />
-        )}
+          <PhotoLottieIcon playKey={photoLottiePlayKey} />
+        </div>
         <button
           type="button"
           aria-label="Study"
@@ -952,6 +1028,7 @@ function HomeExperimentBBottomBar({
           onPointerLeave={() => setSolvePressed(false)}
           onClick={() => {
             setSolvePressed(false);
+          setPhotoLottiePlayKey((key) => key + 1);
             onSolve();
           }}
           className="pointer-events-auto absolute bottom-[34px] left-[165.5px] h-[62px] w-[62px] border-0 bg-transparent p-0"
