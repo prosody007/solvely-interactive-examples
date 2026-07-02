@@ -884,7 +884,7 @@ function PhotoLottieIcon({ playKey }: { playKey: number }) {
         renderer: "svg",
         loop: false,
         autoplay: false,
-        path: `${ASSET}/photo3.json`,
+        path: `${ASSET}/scan_click.json`,
       });
 
       animationRef.current = animation;
