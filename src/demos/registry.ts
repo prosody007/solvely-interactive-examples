@@ -7,6 +7,7 @@ export type ScreenKey =
   | "study"
   | "onboarding"
   | "tutor"
+  | "tutor-explanation"
   | "flash-card-stack"
   | "flash-card-flip-swipe-away"
   | "paywall"
@@ -25,6 +26,7 @@ export const SCREENS: {
   { key: "study", title: "Study", href: "/study" },
   { key: "onboarding", title: "Onboarding", href: "/onboarding" },
   { key: "tutor", title: "Tutor", href: "/tutor" },
+  { key: "tutor-explanation", title: "Tutor Explanation", href: "/tutor-explanation" },
   {
     key: "flash-card-stack",
     title: "Flash Card Stack",
@@ -50,6 +52,7 @@ export const NAV_GROUPS: {
       "solve",
       "study",
       "tutor",
+      "tutor-explanation",
       "flash-card-stack",
       "flash-card-flip-swipe-away",
       "practice-game",

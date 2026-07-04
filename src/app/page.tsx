@@ -12,7 +12,7 @@ import {
 import { HomePreview } from "@/demos/previews/home-preview";
 import { HomeV2Preview } from "@/demos/previews/home-v2-preview";
 import { StudyPreview } from "@/demos/previews/study-preview";
-import { TutorPreview } from "@/demos/previews/tutor-preview";
+import { TutorExplanationPreview, TutorPreview } from "@/demos/previews/tutor-preview";
 import {
   FlashCardFlipSwipeAwayPreview,
   FlashCardTransitionPreview,
@@ -1336,6 +1336,7 @@ function ScreenPreview({
   if (activeKey === "solve") return <HomePreview />;
   if (activeKey === "study") return <StudyPreview experiment={studyExperiment} />;
   if (activeKey === "tutor") return <TutorPreview />;
+  if (activeKey === "tutor-explanation") return <TutorExplanationPreview />;
   if (activeKey === "flash-card-stack") return <FlashCardTransitionPreview />;
   if (activeKey === "flash-card-flip-swipe-away") {
     return <FlashCardFlipSwipeAwayPreview />;

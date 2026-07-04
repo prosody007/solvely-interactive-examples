@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type CSSProperties,
@@ -224,10 +225,14 @@ export function TutorPreview({
   embedded = false,
   hideBottomNav = false,
   onSubpageVisibilityChange,
+  initialPreviewVisible = false,
+  answerPreviewModules = EXPLANATION_MODULES,
 }: {
   embedded?: boolean;
   hideBottomNav?: boolean;
   onSubpageVisibilityChange?: (visible: boolean) => void;
+  initialPreviewVisible?: boolean;
+  answerPreviewModules?: readonly (typeof EXPLANATION_MODULES)[number][];
 } = {}) {
   const [activeIndex, setActiveIndex] = useState(1); // 中央卡（rollercoaster）选中
   const [activeTab, setActiveTab] = useState<TutorTabId>("tutor");
@@ -236,7 +241,7 @@ export function TutorPreview({
   const [loadingVisible, setLoadingVisible] = useState(false);
   const [loadingClosing, setLoadingClosing] = useState(false);
   const [loadingCloseMode, setLoadingCloseMode] = useState<"back" | "complete">("back");
-  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(initialPreviewVisible);
   const [previewClosing, setPreviewClosing] = useState(false);
 
   useEffect(() => {
@@ -545,15 +550,6 @@ export function TutorPreview({
             }
           }
 
-          @keyframes tutor-continue-border-countdown {
-            from {
-              stroke-dashoffset: 100;
-            }
-            to {
-              stroke-dashoffset: 0;
-            }
-          }
-
           @media (prefers-reduced-motion: reduce) {
             .tutor-history-page,
             .tutor-loading-page,
@@ -658,7 +654,10 @@ export function TutorPreview({
             willChange: previewClosing ? "transform, opacity" : undefined,
           }}
         >
-          <TutorAnswerPreviewScreen onBack={closePreview} />
+          <TutorAnswerPreviewScreen
+            onBack={closePreview}
+            modules={answerPreviewModules}
+          />
         </div>
       ) : null}
     </>
@@ -679,6 +678,16 @@ export function TutorPreview({
     <DemoCanvas mode="fill" background="#F6F8FA">
       {content}
     </DemoCanvas>
+  );
+}
+
+export function TutorExplanationPreview() {
+  return (
+    <TutorPreview
+      initialPreviewVisible
+      hideBottomNav
+      answerPreviewModules={[EXPLANATION_MODULES[0]]}
+    />
   );
 }
 
@@ -1557,23 +1566,16 @@ function TutorLoadingScreen({
   );
 }
 
-function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
+function TutorAnswerPreviewScreen({
+  onBack,
+  modules,
+}: {
+  onBack: () => void;
+  modules: readonly (typeof EXPLANATION_MODULES)[number][];
+}) {
   const [paused, setPaused] = useState(false);
   const [voiceInputActive, setVoiceInputActive] = useState(false);
   const [ratingSheetVisible, setRatingSheetVisible] = useState(false);
-  const [continuePaused, setContinuePaused] = useState(false);
-  const [continuePauseUsed, setContinuePauseUsed] = useState(false);
-
-  const resumeFromContinuePause = () => {
-    setContinuePauseUsed(true);
-    setContinuePaused(false);
-  };
-
-  useEffect(() => {
-    if (!continuePaused) return;
-    const timer = window.setTimeout(resumeFromContinuePause, 20000);
-    return () => window.clearTimeout(timer);
-  }, [continuePaused]);
 
   return (
     <div
@@ -1582,9 +1584,8 @@ function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
     >
       <TutorAnswerPreviewHeader onBack={() => setRatingSheetVisible(true)} />
       <ExplanationContentStream
-        paused={paused || voiceInputActive || continuePaused}
-        autoPauseEnabled={!continuePauseUsed}
-        onAutoPause={() => setContinuePaused(true)}
+        paused={paused || voiceInputActive}
+        modules={modules}
       />
       <div
         className="tutor-preview-enter"
@@ -1670,7 +1671,7 @@ function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
         >
           <TypewriterTwoLineText
             text={ANSWER_PREVIEW_PLACEHOLDER}
-            paused={paused || voiceInputActive || continuePaused}
+            paused={paused || voiceInputActive}
           />
         </div>
         <div
@@ -1720,9 +1721,6 @@ function TutorAnswerPreviewScreen({ onBack }: { onBack: () => void }) {
           topOffset={156}
           zIndex={4}
         />
-        {continuePaused ? (
-          <ContinueExplanationButton onContinue={resumeFromContinuePause} />
-        ) : null}
       </div>
       <HomeIndicator />
       {ratingSheetVisible ? (
@@ -2332,31 +2330,25 @@ function SpeedSelectionMenu({
 
 function ExplanationContentStream({
   paused,
-  autoPauseEnabled,
-  onAutoPause,
+  modules,
 }: {
   paused: boolean;
-  autoPauseEnabled: boolean;
-  onAutoPause: () => void;
+  modules: readonly (typeof EXPLANATION_MODULES)[number][];
 }) {
   const [visibleCount, setVisibleCount] = useState(1);
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (paused) return;
-    if (visibleCount >= EXPLANATION_MODULES.length) return;
-    if (visibleCount === 2 && autoPauseEnabled) {
-      onAutoPause();
-      return;
-    }
+    if (visibleCount >= modules.length) return;
 
     const delays = [0, 3300, 4100, 3600, 4700, 3900];
     const timer = window.setTimeout(() => {
-      setVisibleCount((count) => Math.min(count + 1, EXPLANATION_MODULES.length));
+      setVisibleCount((count) => Math.min(count + 1, modules.length));
     }, delays[visibleCount] ?? 4000);
 
     return () => window.clearTimeout(timer);
-  }, [autoPauseEnabled, onAutoPause, paused, visibleCount]);
+  }, [modules.length, paused, visibleCount]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -2394,7 +2386,7 @@ function ExplanationContentStream({
           gap: 24,
         }}
       >
-        {EXPLANATION_MODULES.slice(0, visibleCount).map((module, index) => (
+        {modules.slice(0, visibleCount).map((module, index) => (
           <div
             key={`${module.kind}-${index}`}
             style={{
@@ -2551,94 +2543,6 @@ const cardStyle: CSSProperties = {
   boxSizing: "border-box",
 };
 
-function ContinueExplanationButton({ onContinue }: { onContinue: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onContinue}
-      style={{
-        position: "absolute",
-        right: 16,
-        top: 90,
-        height: 42,
-        padding: "12px 16px",
-        border: "1px solid #FFFFFF",
-        borderRadius: 100,
-        background: "#FBFCFF",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: "0px 12px 12px rgba(0, 0, 0, 0.08)",
-        cursor: "pointer",
-        zIndex: 5,
-        WebkitTapHighlightColor: "transparent",
-      }}
-    >
-      <span
-        style={{
-          position: "relative",
-          zIndex: 1,
-          fontFamily:
-            "Inter, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
-          fontWeight: 500,
-          fontSize: 16,
-          lineHeight: "16px",
-          color: "#000000",
-          whiteSpace: "nowrap",
-        }}
-      >
-        Continue
-      </span>
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="-2 -2 104 46"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          overflow: "visible",
-          pointerEvents: "none",
-        }}
-      >
-        <rect
-          x="-2.5"
-          y="-2.5"
-          width="105"
-          height="47"
-          rx="23.5"
-          fill="none"
-          stroke="url(#continue-border-gradient)"
-          strokeWidth="2"
-          vectorEffect="non-scaling-stroke"
-          pathLength="100"
-          strokeDasharray="100"
-          strokeDashoffset="100"
-          style={{
-            animation:
-              "tutor-continue-border-countdown 20s linear forwards",
-          }}
-        />
-        <defs>
-          <linearGradient
-            id="continue-border-gradient"
-            x1="0"
-            y1="0"
-            x2="100"
-            y2="42"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0%" stopColor="#007AFF" />
-            <stop offset="50%" stopColor="#4DFE82" />
-            <stop offset="100%" stopColor="#007AFF" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </button>
-  );
-}
-
 function TutorAnswerInputBar({
   paused,
   onTogglePause,
@@ -2681,6 +2585,7 @@ function TutorAnswerInputBar({
           width="flex"
           height={58}
           onClick={onVoiceInput}
+          borderGlow
         />
         <AnswerImageButton
           src="/figma/tutor/answer-keyboard-button.png"
@@ -2708,15 +2613,18 @@ function AnswerImageButton({
   width,
   height,
   onClick,
+  borderGlow = false,
 }: {
   src: string;
   label: string;
   width: number | "flex";
   height: number;
   onClick?: () => void;
+  borderGlow?: boolean;
 }) {
   const [pressed, setPressed] = useState(false);
   const numericWidth = width === "flex" ? undefined : width;
+  const gradientId = `${useId().replace(/:/g, "")}-borderGlowGradient`;
 
   return (
     <button
@@ -2728,6 +2636,7 @@ function AnswerImageButton({
       onPointerLeave={() => setPressed(false)}
       onPointerCancel={() => setPressed(false)}
       style={{
+        position: borderGlow ? "relative" : undefined,
         width: numericWidth,
         height,
         flex: width === "flex" ? 1 : undefined,
@@ -2742,19 +2651,125 @@ function AnswerImageButton({
         WebkitTapHighlightColor: "transparent",
       }}
     >
+      {borderGlow ? (
+        <svg
+          viewBox="0 0 410 116"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        >
+          <defs>
+            <linearGradient
+              id={gradientId}
+              x1="0"
+              y1="0"
+              x2="410"
+              y2="116"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#FFD60A" />
+              <stop offset="0.2" stopColor="#FF9F0A" />
+              <stop offset="0.4" stopColor="#FF375F" />
+              <stop offset="0.6" stopColor="#BF5AF2" />
+              <stop offset="0.8" stopColor="#0A84FF" />
+              <stop offset="1" stopColor="#FFD60A" />
+              <animateTransform
+                attributeName="gradientTransform"
+                type="rotate"
+                from="0 205 58"
+                to="360 205 58"
+                dur="3.75s"
+                repeatCount="indefinite"
+              />
+            </linearGradient>
+          </defs>
+          <rect
+            x="0"
+            y="0"
+            width="410"
+            height="116"
+            rx="58"
+            fill={`url(#${gradientId})`}
+            style={{ opacity: 0.105, filter: "blur(16px)" }}
+          />
+        </svg>
+      ) : null}
+      {borderGlow ? (
+        <svg
+          viewBox="-48 -48 506 212"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: -24,
+            overflow: "visible",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        >
+          <rect
+            x="2"
+            y="2"
+            width="406"
+            height="112"
+            rx="56"
+            pathLength="1"
+            fill="none"
+            stroke={`url(#${gradientId})`}
+            strokeWidth="8"
+            strokeLinecap="round"
+            style={{ filter: "blur(32px)", opacity: 0.7 }}
+          />
+        </svg>
+      ) : null}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt=""
         draggable={false}
         style={{
+          position: borderGlow ? "relative" : undefined,
           width: width === "flex" ? "100%" : width,
           height,
           display: "block",
           pointerEvents: "none",
           userSelect: "none",
+          zIndex: borderGlow ? 1 : undefined,
         }}
       />
+      {borderGlow ? (
+        <svg
+          viewBox="0 0 410 116"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+            zIndex: 3,
+          }}
+        >
+          <rect
+            x="2"
+            y="2"
+            width="406"
+            height="112"
+            rx="56"
+            pathLength="1"
+            fill="none"
+            stroke={`url(#${gradientId})`}
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : null}
     </button>
   );
 }
