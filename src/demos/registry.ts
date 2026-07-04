@@ -26,7 +26,7 @@ export const SCREENS: {
   { key: "study", title: "Study", href: "/study" },
   { key: "onboarding", title: "Onboarding", href: "/onboarding" },
   { key: "tutor", title: "Tutor", href: "/tutor" },
-  { key: "tutor-explanation", title: "Tutor Explanation", href: "/tutor-explanation" },
+  { key: "tutor-explanation", title: "Tutor 讲题链路优化", href: "/tutor-explanation" },
   {
     key: "flash-card-stack",
     title: "Flash Card Stack",
