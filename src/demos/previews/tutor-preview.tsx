@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useId,
   useRef,
   useState,
   type CSSProperties,
@@ -547,6 +546,15 @@ export function TutorPreview({
             100% {
               opacity: 1;
               transform: scale(1);
+            }
+          }
+
+          @keyframes tutor-border-glow-spin {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
             }
           }
 
@@ -2624,7 +2632,8 @@ function AnswerImageButton({
 }) {
   const [pressed, setPressed] = useState(false);
   const numericWidth = width === "flex" ? undefined : width;
-  const gradientId = `${useId().replace(/:/g, "")}-borderGlowGradient`;
+  const borderGlowGradient =
+    "conic-gradient(from 0deg, #FFD60A 0deg, #FF9F0A 72deg, #FF375F 144deg, #BF5AF2 216deg, #0A84FF 288deg, #FFD60A 360deg)";
 
   return (
     <button
@@ -2642,134 +2651,157 @@ function AnswerImageButton({
         flex: width === "flex" ? 1 : undefined,
         flexShrink: width === "flex" ? undefined : 0,
         padding: 0,
-        border: "none",
+        border: borderGlow ? 0 : "none",
+        borderRadius: borderGlow ? 999 : undefined,
         background: "transparent",
         cursor: "pointer",
         transform: pressed ? "scale(0.95)" : "scale(1)",
         transition: "transform 0.1s ease-in-out",
         transformOrigin: "center center",
+        isolation: borderGlow ? "isolate" : undefined,
         WebkitTapHighlightColor: "transparent",
       }}
     >
       {borderGlow ? (
-        <svg
-          viewBox="0 0 410 116"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "visible",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        >
-          <defs>
-            <linearGradient
-              id={gradientId}
-              x1="0"
-              y1="0"
-              x2="410"
-              y2="116"
-              gradientUnits="userSpaceOnUse"
+        <>
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: -16,
+              borderRadius: 999,
+              overflow: "hidden",
+              opacity: 0.105,
+              filter: "blur(16px)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: -80,
+                background: borderGlowGradient,
+                animation: "tutor-border-glow-spin 3.75s linear infinite",
+              }}
+            />
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              padding: 4,
+              borderRadius: 999,
+              overflow: "hidden",
+              opacity: 0.7,
+              filter: "blur(6px)",
+              pointerEvents: "none",
+              zIndex: 1,
+              WebkitMask:
+                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: -80,
+                background: borderGlowGradient,
+                animation: "tutor-border-glow-spin 3.75s linear infinite",
+              }}
+            />
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              padding: 2,
+              borderRadius: 999,
+              overflow: "hidden",
+              pointerEvents: "none",
+              zIndex: 3,
+              WebkitMask:
+                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: -80,
+                background: borderGlowGradient,
+                animation: "tutor-border-glow-spin 3.75s linear infinite",
+              }}
+            />
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 3,
+              zIndex: 2,
+              borderRadius: "inherit",
+              border: 0,
+              background:
+                "linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1))",
+              pointerEvents: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              style={{ display: "block" }}
             >
-              <stop stopColor="#FFD60A" />
-              <stop offset="0.2" stopColor="#FF9F0A" />
-              <stop offset="0.4" stopColor="#FF375F" />
-              <stop offset="0.6" stopColor="#BF5AF2" />
-              <stop offset="0.8" stopColor="#0A84FF" />
-              <stop offset="1" stopColor="#FFD60A" />
-              <animateTransform
-                attributeName="gradientTransform"
-                type="rotate"
-                from="0 205 58"
-                to="360 205 58"
-                dur="3.75s"
-                repeatCount="indefinite"
+              <path
+                d="M12 3.75C10.62 3.75 9.5 4.87 9.5 6.25V11C9.5 12.38 10.62 13.5 12 13.5C13.38 13.5 14.5 12.38 14.5 11V6.25C14.5 4.87 13.38 3.75 12 3.75Z"
+                fill="#111111"
               />
-            </linearGradient>
-          </defs>
-          <rect
-            x="0"
-            y="0"
-            width="410"
-            height="116"
-            rx="58"
-            fill={`url(#${gradientId})`}
-            style={{ opacity: 0.105, filter: "blur(16px)" }}
+              <path
+                d="M6.75 10.75C6.75 13.65 9.1 16 12 16C14.9 16 17.25 13.65 17.25 10.75"
+                fill="none"
+                stroke="#111111"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+              />
+              <path
+                d="M12 16V20.25M9.25 20.25H14.75"
+                fill="none"
+                stroke="#111111"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+        </>
+      ) : (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt=""
+            draggable={false}
+            style={{
+              width: width === "flex" ? "100%" : width,
+              height,
+              display: "block",
+              pointerEvents: "none",
+              userSelect: "none",
+            }}
           />
-        </svg>
-      ) : null}
-      {borderGlow ? (
-        <svg
-          viewBox="-48 -48 506 212"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: -24,
-            overflow: "visible",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        >
-          <rect
-            x="2"
-            y="2"
-            width="406"
-            height="112"
-            rx="56"
-            pathLength="1"
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth="8"
-            strokeLinecap="round"
-            style={{ filter: "blur(32px)", opacity: 0.7 }}
-          />
-        </svg>
-      ) : null}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt=""
-        draggable={false}
-        style={{
-          position: borderGlow ? "relative" : undefined,
-          width: width === "flex" ? "100%" : width,
-          height,
-          display: "block",
-          pointerEvents: "none",
-          userSelect: "none",
-          zIndex: borderGlow ? 1 : undefined,
-        }}
-      />
-      {borderGlow ? (
-        <svg
-          viewBox="0 0 410 116"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "visible",
-            pointerEvents: "none",
-            zIndex: 3,
-          }}
-        >
-          <rect
-            x="2"
-            y="2"
-            width="406"
-            height="112"
-            rx="56"
-            pathLength="1"
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-        </svg>
-      ) : null}
+        </>
+      )}
     </button>
   );
 }
