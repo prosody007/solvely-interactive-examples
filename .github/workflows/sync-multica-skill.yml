@@ -16,7 +16,6 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    if: ${{ secrets.MULTICA_TOKEN != '' }}
 
     steps:
       - name: Checkout
