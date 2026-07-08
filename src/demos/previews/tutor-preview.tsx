@@ -2633,7 +2633,7 @@ function AnswerImageButton({
   const [pressed, setPressed] = useState(false);
   const numericWidth = width === "flex" ? undefined : width;
   const borderGlowGradient =
-    "conic-gradient(from 0deg, #FFD60A 0deg, #FF9F0A 72deg, #FF375F 144deg, #BF5AF2 216deg, #0A84FF 288deg, #FFD60A 360deg)";
+    "conic-gradient(#FFD60A, #FF9F0A, #FF375F, #BF5AF2, #0A84FF, #FFD60A)";
 
   return (
     <button
@@ -2655,6 +2655,7 @@ function AnswerImageButton({
         borderRadius: borderGlow ? 999 : undefined,
         background: "transparent",
         cursor: "pointer",
+        overflow: borderGlow ? "visible" : undefined,
         transform: pressed ? "scale(0.95)" : "scale(1)",
         transition: "transform 0.1s ease-in-out",
         transformOrigin: "center center",
@@ -2681,7 +2682,10 @@ function AnswerImageButton({
               aria-hidden="true"
               style={{
                 position: "absolute",
-                inset: -80,
+                left: "-50%",
+                top: "-180%",
+                width: "200%",
+                height: "500%",
                 background: borderGlowGradient,
                 animation: "tutor-border-glow-spin 3.75s linear infinite",
               }}
@@ -2692,50 +2696,20 @@ function AnswerImageButton({
             style={{
               position: "absolute",
               inset: 0,
-              padding: 4,
               borderRadius: 999,
               overflow: "hidden",
-              opacity: 0.7,
-              filter: "blur(6px)",
               pointerEvents: "none",
               zIndex: 1,
-              WebkitMask:
-                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              maskComposite: "exclude",
             }}
           >
             <span
               aria-hidden="true"
               style={{
                 position: "absolute",
-                inset: -80,
-                background: borderGlowGradient,
-                animation: "tutor-border-glow-spin 3.75s linear infinite",
-              }}
-            />
-          </span>
-          <span
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              padding: 2,
-              borderRadius: 999,
-              overflow: "hidden",
-              pointerEvents: "none",
-              zIndex: 3,
-              WebkitMask:
-                "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              maskComposite: "exclude",
-            }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: -80,
+                left: "-50%",
+                top: "-180%",
+                width: "200%",
+                height: "500%",
                 background: borderGlowGradient,
                 animation: "tutor-border-glow-spin 3.75s linear infinite",
               }}
@@ -2746,7 +2720,18 @@ function AnswerImageButton({
             style={{
               position: "absolute",
               inset: 3,
+              borderRadius: "inherit",
+              background: "#EAEBEF",
+              pointerEvents: "none",
               zIndex: 2,
+            }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 3,
+              zIndex: 3,
               borderRadius: "inherit",
               border: 0,
               background:
