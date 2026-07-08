@@ -1,0 +1,41 @@
+name: Sync Multica Skill
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".agents/skills/solvely-ios-interactions/**"
+      - "docs/animation-catalog.md"
+      - "docs/integration-guide.md"
+      - "docs/figma-export-rules.md"
+      - "scripts/sync-multica-skill.sh"
+      - ".github/workflows/sync-multica-skill.yml"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.MULTICA_TOKEN != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Multica CLI
+        run: |
+          curl -sL https://github.com/multica-ai/multica/releases/latest \
+            -o /tmp/multica-latest.html
+          LATEST="$(grep -oE '/multica-ai/multica/releases/tag/v[^"]+' /tmp/multica-latest.html | head -1 | sed 's#.*/tag/##')"
+          VERSION="${LATEST#v}"
+          curl -sL "https://github.com/multica-ai/multica/releases/download/${LATEST}/multica-cli-${VERSION}-linux-amd64.tar.gz" \
+            -o /tmp/multica.tar.gz
+          tar -xzf /tmp/multica.tar.gz -C /tmp multica
+          sudo mv /tmp/multica /usr/local/bin/multica
+          multica version
+
+      - name: Sync skill
+        env:
+          MULTICA_TOKEN: ${{ secrets.MULTICA_TOKEN }}
+          MULTICA_SKILL_ID: b33027ee-0a7d-40d1-b701-48ead51bb621
+        run: bash scripts/sync-multica-skill.sh
