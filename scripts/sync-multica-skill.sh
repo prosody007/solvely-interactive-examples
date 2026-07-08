@@ -3,12 +3,19 @@ set -euo pipefail
 
 SKILL_ID="${MULTICA_SKILL_ID:-b33027ee-0a7d-40d1-b701-48ead51bb621}"
 SKILL_DIR="${SKILL_DIR:-.agents/skills/solvely-ios-interactions}"
+MULTICA_SERVER_URL="${MULTICA_SERVER_URL:-https://api.multica.ai}"
+MULTICA_APP_URL="${MULTICA_APP_URL:-https://multica.ai}"
+MULTICA_WORKSPACE_ID="${MULTICA_WORKSPACE_ID:-3e67a813-1c54-4e84-95a6-ce8e6aa8f073}"
 
 if ! command -v multica >/dev/null 2>&1; then
   echo "multica CLI is not installed." >&2
   echo "Install it with: brew install multica-ai/tap/multica" >&2
   exit 1
 fi
+
+multica config set server_url "$MULTICA_SERVER_URL" >/dev/null
+multica config set app_url "$MULTICA_APP_URL" >/dev/null
+multica config set workspace_id "$MULTICA_WORKSPACE_ID" >/dev/null
 
 if [[ -n "${MULTICA_TOKEN:-}" ]]; then
   multica login --token "$MULTICA_TOKEN" >/dev/null
