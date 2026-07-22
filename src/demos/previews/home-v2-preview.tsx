@@ -12,7 +12,8 @@ type HomeV2Tab = "study" | "solve" | "tutor";
 type HomeV2MainTab = "study" | "tutor";
 
 const ASSET = "/figma/home-v2";
-const SOLVE_CAPTURE_TABBAR_SPACER_H = 77;
+const SOLVE_CAPTURE_BOTTOM_MARGIN_H = 32;
+const SOLVE_CAPTURE_TABBAR_SPACER_H = SOLVE_CAPTURE_BOTTOM_MARGIN_H;
 
 const VERSION_ONE_CREATE_ITEMS = [
   {
@@ -1268,7 +1269,7 @@ export function HomeV2Preview({
 }: {
   experiment?: HomeExperimentVariant;
 }) {
-  return <HomeVersionOnePreview showTutorTab={experiment === "experiment-b"} />;
+  return <HomeVersionOnePreview showTutorTab={experiment === "experiment-a"} />;
 }
 
 function HomeStudyLayer({
@@ -1329,16 +1330,72 @@ function HomeVersionOnePreview({ showTutorTab = false }: { showTutorTab?: boolea
   return showTutorTab ? <HomeExperimentBPreview /> : <HomeExperimentAPreview />;
 }
 
+function SolveCloseToolbarButton({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex items-center" style={{ gap: 24 }}>
+      <button
+        type="button"
+        aria-label="Close solve"
+        onClick={onClose}
+        className="relative h-[32px] w-[32px] shrink-0 border-0 bg-transparent p-0"
+        style={{ WebkitTapHighlightColor: "transparent" }}
+      >
+        <img
+          src="/figma/home/close.svg"
+          alt=""
+          draggable={false}
+          className="absolute left-1/2 top-1/2 h-[24px] w-[24px] -translate-x-1/2 -translate-y-1/2"
+        />
+      </button>
+      <div
+        aria-hidden="true"
+        className="relative flex h-[32px] shrink-0 items-start"
+      >
+        <div
+          className="flex h-[32px] items-center justify-center overflow-hidden rounded-l-[50px] border border-[#00C2FF] bg-white py-[5.5px] pl-[16px] pr-[10px]"
+          style={{
+            backdropFilter: "blur(1.5px)",
+            WebkitBackdropFilter: "blur(1.5px)",
+          }}
+        >
+          <span className="whitespace-nowrap text-center font-[Inter] text-[16px] font-bold leading-[1.4] text-[#007AFF]">
+            20💎
+          </span>
+        </div>
+        <div className="relative h-[32px] w-[36px] shrink-0 overflow-hidden rounded-r-[50px] border border-[#00C2FF] bg-[#00C2FF]">
+          <img
+            src="/figma/home/solve-credit-plus.svg"
+            alt=""
+            draggable={false}
+            className="absolute left-[9px] top-[9px] h-[14px] w-[14px]"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeExperimentAPreview() {
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"study" | "solve">("study");
-  const canvasBackground = activeTab === "solve" ? "#FFFFFF" : "#F6F8FA";
+  const [activeTab, setActiveTab] = useState<"study">("study");
+  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open" | "closing">("idle");
+  const canvasBackground = "#F6F8FA";
 
   const changeTab = (tab: HomeV2Tab) => {
     if (tab === "tutor") return;
-    setActiveTab(tab);
     setUploadOpen(false);
+    if (tab === "solve") {
+      setSolveSheetPhase("open");
+      return;
+    }
+    setSolveSheetPhase("idle");
+    setActiveTab("study");
   };
+
+  const closeSolve = () => {
+    setSolveSheetPhase("closing");
+  };
+  const solveSheetVisible = solveSheetPhase !== "idle";
 
   return (
     <DemoCanvas mode="fill" background={canvasBackground}>
@@ -1346,24 +1403,59 @@ function HomeExperimentAPreview() {
         className="absolute inset-0 select-none overflow-hidden"
         style={{ background: canvasBackground }}
       >
-        {activeTab === "solve" ? (
-          <HomePreview
-            hideGuidedPopover
-            showModeSegment={false}
-            bottomBar={
-              <div
-                aria-hidden="true"
-                style={{ height: SOLVE_CAPTURE_TABBAR_SPACER_H }}
-              />
+        <style>
+          {`
+            @keyframes home-v2-solve-sheet-enter {
+              from {
+                transform: translateY(100%);
+              }
+              to {
+                transform: translateY(0);
+              }
             }
-          />
-        ) : (
-          <HomeStudyLayer
-            uploadOpen={uploadOpen}
-            onCloseUpload={() => setUploadOpen(false)}
-            onSnapSolve={() => changeTab("solve")}
-          />
-        )}
+
+            @keyframes home-v2-solve-sheet-exit {
+              from {
+                transform: translateY(0);
+              }
+              to {
+                transform: translateY(100%);
+              }
+            }
+          `}
+        </style>
+        <HomeStudyLayer
+          uploadOpen={uploadOpen}
+          onCloseUpload={() => setUploadOpen(false)}
+          onSnapSolve={() => changeTab("solve")}
+        />
+        {solveSheetVisible ? (
+          <div
+            className="absolute inset-0 z-[160]"
+            onAnimationEnd={(event) => {
+              if (event.currentTarget !== event.target) return;
+              if (solveSheetPhase === "closing") setSolveSheetPhase("idle");
+            }}
+            style={{
+              animation: solveSheetPhase === "closing"
+                ? "home-v2-solve-sheet-exit 392ms cubic-bezier(0.16, 1, 0.3, 1) both"
+                : "home-v2-solve-sheet-enter 504ms cubic-bezier(0.16, 1, 0.3, 1) both",
+              willChange: "transform, opacity",
+            }}
+          >
+            <HomePreview
+              hideGuidedPopover
+              showModeSegment={false}
+              bottomBar={
+                <div
+                  aria-hidden="true"
+                  style={{ height: SOLVE_CAPTURE_BOTTOM_MARGIN_H }}
+                />
+              }
+              toolbarLeft={<SolveCloseToolbarButton onClose={closeSolve} />}
+            />
+          </div>
+        ) : null}
         <HomeV2BottomBar
           activeTab={activeTab}
           onTabChange={changeTab}
@@ -1378,7 +1470,7 @@ function HomeExperimentAPreview() {
 function HomeExperimentBPreview() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<HomeV2MainTab>("study");
-  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open">("idle");
+  const [solveSheetPhase, setSolveSheetPhase] = useState<"idle" | "open" | "closing">("idle");
   const [tutorSubpageVisible, setTutorSubpageVisible] = useState(false);
 
   useEffect(() => {
@@ -1396,6 +1488,10 @@ function HomeExperimentBPreview() {
   const openSolveSheet = () => {
     setSolveSheetPhase("open");
     setUploadOpen(false);
+  };
+
+  const closeSolveSheet = () => {
+    setSolveSheetPhase("closing");
   };
 
   const hideHomeTabBar = activeTab === "tutor" && tutorSubpageVisible;
@@ -1416,8 +1512,6 @@ function HomeExperimentBPreview() {
       />
     );
   const solveSheetVisible = solveSheetPhase !== "idle";
-  const bottomBarActiveTab: HomeV2Tab =
-    solveSheetPhase === "open" ? "solve" : activeTab;
 
   return (
     <DemoCanvas mode="fill" background={canvasBackground}>
@@ -1436,15 +1530,30 @@ function HomeExperimentBPreview() {
               }
             }
 
+            @keyframes home-v2-solve-sheet-exit {
+              from {
+                transform: translateY(0);
+              }
+              to {
+                transform: translateY(100%);
+              }
+            }
+
           `}
         </style>
         {content}
         {solveSheetVisible ? (
           <div
-            className="absolute inset-0 z-[60]"
+            className="absolute inset-0 z-[160]"
+            onAnimationEnd={(event) => {
+              if (event.currentTarget !== event.target) return;
+              if (solveSheetPhase === "closing") setSolveSheetPhase("idle");
+            }}
             style={{
               animation:
-                "home-v2-solve-sheet-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
+                solveSheetPhase === "closing"
+                  ? "home-v2-solve-sheet-exit 392ms cubic-bezier(0.16, 1, 0.3, 1) both"
+                  : "home-v2-solve-sheet-enter 504ms cubic-bezier(0.16, 1, 0.3, 1) both",
               willChange: "transform, opacity",
             }}
           >
@@ -1454,15 +1563,16 @@ function HomeExperimentBPreview() {
               bottomBar={
                 <div
                   aria-hidden="true"
-                  style={{ height: SOLVE_CAPTURE_TABBAR_SPACER_H }}
+                  style={{ height: SOLVE_CAPTURE_BOTTOM_MARGIN_H }}
                 />
               }
+              toolbarLeft={<SolveCloseToolbarButton onClose={closeSolveSheet} />}
             />
           </div>
         ) : null}
         {!hideHomeTabBar ? (
           <HomeExperimentBBottomBar
-            activeTab={bottomBarActiveTab}
+            activeTab={activeTab}
             uploadOpen={uploadOpen}
             onStudy={() => switchTab("study")}
             onSolve={openSolveSheet}

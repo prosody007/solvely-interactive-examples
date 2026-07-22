@@ -85,6 +85,21 @@ export function HomePreview({
         }}
       />
 
+      {useEmbeddedSolveLayout ? (
+        <div
+          className="pointer-events-none absolute bottom-0 left-0"
+          style={{
+            width: 393,
+            height: 272,
+            background:
+              "linear-gradient(180deg, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0.0001) 100%)",
+            backdropFilter: "blur(0px)",
+            WebkitBackdropFilter: "blur(0px)",
+            transform: "rotate(-180deg)",
+          }}
+        />
+      ) : null}
+
       {/* Tool bar — 1:1 与 Figma 节点 1465:13774 对齐 */}
       <div
         className="absolute left-0 right-0 flex items-center justify-between"
@@ -277,10 +292,9 @@ const SEGMENT_TEXT_BASE = {
 };
 
 const EMBEDDED_SOLVE_CATEGORIES = [
-  { label: "Notes", left: 115.5, active: false },
-  { label: "Solution", left: 196.5, active: true },
-  { label: "Flashcards", left: 299, active: false },
-  { label: "Quiz", left: 386, active: false },
+  { label: "Video Tutor", left: 53, width: 85, active: false },
+  { label: "Solution", left: 162, width: 67, active: true },
+  { label: "Study Tools", left: 253, width: 97, active: false },
 ] as const;
 
 function CaptureMode({
@@ -305,6 +319,9 @@ function CaptureMode({
   useEmbeddedSolveLayout: boolean;
 }) {
   const captureBottom = useEmbeddedSolveLayout ? 52 : 20;
+  const captureIconTop = 79;
+  const captureButtonTop = 50;
+  const embeddedPanelOffsetY = useEmbeddedSolveLayout ? 20 : 0;
 
   return (
     <div
@@ -312,30 +329,28 @@ function CaptureMode({
       style={{ height: CAPTURE_MODE_PANEL_H, pointerEvents: "none" }}
     >
       {/* 底部蒙层 — Figma node 1467:14077 */}
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          width: useEmbeddedSolveLayout ? 393 : "100%",
-          bottom: useEmbeddedSolveLayout ? -112 : 0,
-          height: useEmbeddedSolveLayout ? 272 : 160,
-          background: useEmbeddedSolveLayout
-            ? "linear-gradient(180deg, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0.0001) 100%)"
-            : "linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0) 100%)",
-          backdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
-          WebkitBackdropFilter: useEmbeddedSolveLayout ? "blur(0px)" : undefined,
-          transform: useEmbeddedSolveLayout ? "rotate(-180deg)" : undefined,
-        }}
-      />
+      {!useEmbeddedSolveLayout ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            width: "100%",
+            bottom: 0,
+            height: 160,
+            background:
+              "linear-gradient(to top, rgba(17, 17, 17, 0.75) 0%, rgba(34, 34, 34, 0) 100%)",
+          }}
+        />
+      ) : null}
 
       {useEmbeddedSolveLayout ? (
         <div
           style={{
             position: "absolute",
             left: 0,
-            top: 22,
+            top: embeddedPanelOffsetY,
             width: 393,
-            overflow: "hidden",
+            height: 60,
             pointerEvents: "none",
           }}
         >
@@ -345,8 +360,12 @@ function CaptureMode({
               style={{
                 position: "absolute",
                 left: item.left,
-                top: 0,
-                transform: "translateX(-50%)",
+                top: 22,
+                width: item.width,
+                height: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 fontFamily:
                   "Poppins, -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif",
                 fontWeight: 600,
@@ -354,6 +373,7 @@ function CaptureMode({
                 lineHeight: "16px",
                 color: "#FFFFFF",
                 opacity: item.active ? 1 : 0.6,
+                textAlign: "center",
                 whiteSpace: "nowrap",
               }}
             >
@@ -370,7 +390,8 @@ function CaptureMode({
           // 19% 对应 phone 393 内 left=75（width 41 居中于 75 处）；fill 模式下随 device 比例展开
           left: "19%",
           transform: "translateX(-50%)",
-          bottom: captureBottom,
+          top: useEmbeddedSolveLayout ? captureIconTop + embeddedPanelOffsetY : undefined,
+          bottom: useEmbeddedSolveLayout ? undefined : captureBottom,
           width: 41,
           display: "flex",
           flexDirection: "column",
@@ -438,7 +459,8 @@ function CaptureMode({
           // 81% 对应 phone 393 内 left=318；fill 模式下随 device 比例展开
           left: "81%",
           transform: "translateX(-50%)",
-          bottom: captureBottom,
+          top: useEmbeddedSolveLayout ? captureIconTop + embeddedPanelOffsetY : undefined,
+          bottom: useEmbeddedSolveLayout ? undefined : captureBottom,
           width: 41,
           display: "flex",
           flexDirection: "column",
@@ -468,7 +490,8 @@ function CaptureMode({
         style={{
           position: "absolute",
           left: "50%",
-          bottom: captureBottom,
+          top: useEmbeddedSolveLayout ? captureButtonTop + embeddedPanelOffsetY : undefined,
+          bottom: useEmbeddedSolveLayout ? undefined : captureBottom,
           transform: "translateX(-50%)",
           width: 90,
           height: 90,
